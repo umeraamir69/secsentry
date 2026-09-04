@@ -25,6 +25,10 @@
 8bcac7908eb950419537b91e19adc83ce2c9cbfdacf4f81157fdadfec11f7017
 03d104c669e3c7b6be7f989db8b12c8b910d3be8c1e2a73c9369d3cc0ba803b5
 
+# notes/Benchmark results.md: a keyboard-row AKIA string, quoted to explain why
+# the first eval corpus was biased toward tools without an entropy gate.
+58a3159dc51ab1a933818c908fbf293ba16c358e4d0df5934eaba8409a427363
+
 # notes/Demo vulnerable repo.md, commit 6d0b145: a placeholder localhost
 # database URL, user and password both spelled out as those words, quoted in
 # prose explaining the demo repo. Written out here it would flag this file too.

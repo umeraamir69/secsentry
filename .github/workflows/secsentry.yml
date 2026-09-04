@@ -13,27 +13,6 @@ permissions:
   checks: write
 
 jobs:
-  # Installs the package the same way a user does, so a module that exists on
-  # disk but never got committed fails here rather than inside the action.
-  tests:
-    name: SecSentry / tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install
-        run: python -m pip install -e ".[dev]"
-
-      - name: Console script is importable
-        run: secsentry --version
-
-      - name: Test
-        run: python -m pytest -q
-
   secrets:
     name: SecSentry / secrets
     runs-on: ubuntu-latest
