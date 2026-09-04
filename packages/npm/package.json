@@ -1,16 +1,35 @@
 {
   "name": "secsentry",
   "version": "1.4.0",
-  "description": "CLI wrapper for the SecSentry Go secrets scanner",
+  "description": "Git incident scanner for leaked secrets — working tree and history, blob-level dedup, masked case files. This package wraps the Go CLI.",
   "bin": {
     "secsentry": "bin/secsentry.js"
   },
+  "files": [
+    "bin/",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umeraamir69/secsentry.git"
   },
+  "bugs": {
+    "url": "https://github.com/umeraamir69/secsentry/issues"
+  },
   "homepage": "https://github.com/umeraamir69/secsentry#readme",
-  "keywords": ["security", "secrets", "git", "scanner"],
+  "author": "Umer Aamir",
+  "keywords": [
+    "security",
+    "secrets",
+    "secret-scanning",
+    "git",
+    "leaked-credentials",
+    "pre-commit",
+    "sarif",
+    "github-actions",
+    "aws",
+    "api-keys"
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=18"

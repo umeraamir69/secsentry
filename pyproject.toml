@@ -5,18 +5,41 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "secsentry"
 version = "1.4.0"
-description = "CLI wrapper for the SecSentry Go secrets scanner"
+description = "Git incident scanner for leaked secrets — working tree and history, blob-level dedup, masked case files. This package wraps the Go CLI."
 readme = "packages/pypi/README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
-authors = [{ name = "SecSentry" }]
-keywords = ["security", "secrets", "git", "scanner"]
+authors = [{ name = "Umer Aamir" }]
+keywords = [
+    "security",
+    "secrets",
+    "secret-scanning",
+    "git",
+    "leaked-credentials",
+    "pre-commit",
+    "sarif",
+    "github-actions",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+]
 dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/umeraamir69/secsentry"
+Documentation = "https://github.com/umeraamir69/secsentry#readme"
 Repository = "https://github.com/umeraamir69/secsentry"
+Changelog = "https://github.com/umeraamir69/secsentry/blob/main/CHANGELOG.md"
 Issues = "https://github.com/umeraamir69/secsentry/issues"
+"GitHub Releases" = "https://github.com/umeraamir69/secsentry/releases"
 
 [project.scripts]
 secsentry = "secsentry.cli:main"
