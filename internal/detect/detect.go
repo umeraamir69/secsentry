@@ -40,7 +40,7 @@ var Keywords = []string{
 	"hooks.slack.com", "dop_v1_", "doo_v1_", "dor_v1_",
 	"accountkey", "datadog", "dd_api", "dd_app",
 	"jdbc:", "nats://", "sqlserver://", "mysql+", "postgresql+",
-	"twilio",
+	"twilio", "xai-", "pplx-",
 }
 
 // extraPrefix catches tokens that have no safe English-word keyword.
@@ -49,6 +49,7 @@ var extraPrefix = []*regexp.Regexp{
 	regexp.MustCompile(`\b[0-9]{8,10}:[A-Za-z0-9_-]{35}\b`),
 	regexp.MustCompile(`\b[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,40}\b`),
 	regexp.MustCompile(`(?i)authorization.{0,12}basic\s+`),
+	regexp.MustCompile(`(?i)(?:password|passwd)\s*[:=]\s*\S{12,}`),
 }
 
 var (
@@ -98,9 +99,12 @@ func init() {
 	add("npm_token", "HIGH", `\bnpm_[0-9A-Za-z]{36}\b`, 0, "npm_")
 	add("pypi_token", "HIGH", `\bpypi-AgEIcHlwaS[0-9A-Za-z\-_]{50,}\b`, 0, "pypi-")
 	add("private_key", "CRITICAL", `-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----`, 0, "BEGIN", "PRIVATE KEY")
+	add("xai_api_key", "HIGH", `\bxai-[A-Za-z0-9]{20,}\b`, 0, "xai-")
+	add("perplexity_api_key", "HIGH", `\bpplx-[A-Za-z0-9]{20,}\b`, 0, "pplx-")
 	add("jwt", "MEDIUM", `\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b`, 0, "eyJ")
 	add("basic_auth", "HIGH", `(?i)authorization.{0,12}basic\s+["']?([A-Za-z0-9+/=]{16,})`, 1, "authorization")
-	add("generic_api_key", "MEDIUM", `(?i)(?:api[_-]?key|secret[_-]?key|access[_-]?token)\s*[:=]\s*['"]([A-Za-z0-9_\-./+=]{20,})['"]`, 1, "api_key", "secret_key", "access_token")
+	add("generic_api_key", "MEDIUM", `(?i)(?:api[_-]?key|secret[_-]?key|access[_-]?token)\s*[:=]\s*['"]?([A-Za-z0-9_\-./+=]{20,})['"]?`, 1, "api_key", "secret_key", "access_token")
+	add("generic_password", "MEDIUM", `(?i)(?:password|passwd|pwd)\s*[:=]\s*['"]?([^\s'"]{12,})['"]?`, 1, "password", "passwd", "pwd")
 	add("db_url", "HIGH", `(?i)\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|rediss?|amqps?|nats|sqlserver|(?:mysql|postgresql)\+[a-z0-9]+)://[^\s'"]+:[^\s'"]+@[^\s'"]+`, 0, "postgres://", "postgresql://", "mysql://", "mongodb", "redis://", "amqp://", "nats://", "sqlserver://", "mysql+", "postgresql+")
 	add("db_url", "HIGH", `(?i)jdbc:[a-z0-9]+:(?://)?[^\s'"]+`, 0, "jdbc:")
 }
@@ -184,6 +188,9 @@ func Detect(text string) []Hit {
 				if r.id == "twilio_key" && strings.HasPrefix(strings.ToUpper(secret), "AC") {
 					continue
 				}
+				if (r.id == "generic_api_key" || r.id == "generic_password") && !genericValueOK(secret) {
+					continue
+				}
 				col := utf8.RuneCountInString(line[:m[0]]) + 1
 				if r.capture > 0 {
 					col = utf8.RuneCountInString(line[:m[r.capture*2]]) + 1
@@ -198,6 +205,19 @@ func Detect(text string) []Hit {
 	hits = append(hits, awsPairedSecrets(lines)...)
 	hits = append(hits, gcpServiceAccount(text)...)
 	return hits
+}
+
+func genericValueOK(secret string) bool {
+	if strings.HasPrefix(secret, "$") || strings.HasPrefix(secret, "{") {
+		return false
+	}
+	if placeholderPassword(secret) {
+		return false
+	}
+	if Shannon(secret) < 3.5 {
+		return false
+	}
+	return true
 }
 
 func skipSecret(secret string) bool {

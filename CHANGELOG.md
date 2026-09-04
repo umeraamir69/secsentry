@@ -2,6 +2,21 @@
 
 All notable changes to SecSentry. The engine is the Go binary; the npm package is a wrapper around it.
 
+## [1.4.0] — 2026-09-04
+
+Compete on the Gitleaks hole we actually have (labeled assignments), not on Prowl's multilingual prose passwords or live `--verify`.
+
+### Added
+
+- Unquoted `API_KEY=` / `SECRET_KEY=` / `ACCESS_TOKEN=` when the value is high-entropy. Quoted-only was why T2 recall sat at 0.01.
+- Labeled `PASSWORD=` / `passwd=` / `pwd=` with the same entropy gate. `the password is …` in a sentence still does not fire.
+- xAI (`xai-`) and Perplexity (`pplx-`) prefixes.
+- GitHub Release binaries via GoReleaser (linux/darwin/windows, amd64/arm64).
+
+### Not in this version
+
+- Generic passwords in prose, unlabeled high-entropy blobs, vendor HTTP verify, an unmask flag.
+
 ## [1.3.1] — 2026-09-04
 
 Rename a notes file so `go install` can build the module zip. Go rejects an em dash in a file path.

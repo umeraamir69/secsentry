@@ -208,6 +208,31 @@ func TestGCPJSONDoesNotNeedEveryField(t *testing.T) {
 	}
 }
 
+func TestUnquotedGenericAndLabeledPassword(t *testing.T) {
+	key := "API_KEY=n7kQ2vLm9pR4sT8wY1zC3dF6hJ0"
+	if !hasType(Detect(key+"\n"), "generic_api_key") {
+		t.Fatal("unquoted high-entropy API_KEY assignment should fire")
+	}
+	if hasType(Detect("API_KEY=password\n"), "generic_api_key") {
+		t.Fatal("placeholder API_KEY should not fire")
+	}
+	if hasType(Detect("API_KEY=$OPENAI_API_KEY_VALUE\n"), "generic_api_key") {
+		t.Fatal("env-var interpolation is not a leaked secret")
+	}
+	if !hasType(Detect("PASSWORD=n7kQ2vLm9pR4sT8wY1zC3dF6hJ0\n"), "generic_password") {
+		t.Fatal("labeled high-entropy password assignment should fire")
+	}
+	if hasType(Detect("the password is hunter2forall\n"), "generic_password") {
+		t.Fatal("prose passwords must not fire")
+	}
+	if !hasType(Detect("xai-"+strings.Repeat("Ab1", 12)+"\n"), "xai_api_key") {
+		t.Fatal("xai prefix")
+	}
+	if !hasType(Detect("pplx-"+strings.Repeat("Cd2", 12)+"\n"), "perplexity_api_key") {
+		t.Fatal("pplx prefix")
+	}
+}
+
 func TestKeywordPrefilterIgnoresEnglishProductNames(t *testing.T) {
 	if HasKeyword("we use discord and telegram for asia support") {
 		t.Fatal("product names without a token must not disable the prefilter")

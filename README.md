@@ -6,6 +6,7 @@ Values are always masked. SecSentry never sends a credential to a vendor API to 
 
 ```bash
 go install github.com/umeraamir69/secsentry/cmd/secsentry@latest
+# or download a binary from GitHub Releases (linux / macOS / windows)
 
 secsentry scan .              # working tree
 secsentry scan . --history    # every commit
@@ -41,7 +42,7 @@ Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/test
 | Layer | Behaviour |
 |---|---|
 | Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once. **Decode** (base64 / hex / percent) and **archives** (zip / tar / gz) so a key in `echo KEY \| base64` or `deploy.zip!.env` is still a case file. |
-| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack (bot + webhook), Discord, Telegram, Azure storage, Datadog, DigitalOcean, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, Basic auth, database URLs, generic `*_API_KEY` plus Shannon entropy. |
+| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack (bot + webhook), Discord, Telegram, Azure storage, Datadog, DigitalOcean, xAI, Perplexity, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, Basic auth, database URLs, labeled `API_KEY=` / `PASSWORD=` plus Shannon entropy. |
 | Verification | Prefix, length, and format checks performed **locally**. No network calls, ever. |
 | Classifier | Path heuristics, Shannon entropy, and a local BPE rarity score. No network, no vendor model. |
 | Reporting | Terminal, JSON, SARIF, self-contained HTML, and a localhost dashboard. Masked everywhere. |

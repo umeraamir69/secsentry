@@ -68,6 +68,10 @@ func OK(secretType, secret string) bool {
 		return reDO.MatchString(strings.ToLower(secret))
 	case secretType == "basic_auth":
 		return basicOK(secret)
+	case secretType == "xai_api_key":
+		return strings.HasPrefix(secret, "xai-") && len(secret) > 24
+	case secretType == "perplexity_api_key":
+		return strings.HasPrefix(secret, "pplx-") && len(secret) > 24
 	case secretType == "npm_token":
 		return strings.HasPrefix(secret, "npm_") && len(secret) == 40
 	default:

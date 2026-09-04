@@ -32,7 +32,7 @@ func Classify(path, secretType, secret string, structural bool) Decision {
 	why = append(why, fmt.Sprintf("bpe_rarity=%.2f", rar))
 	if rar >= 0.55 {
 		conf += 0.08
-	} else if rar < 0.35 && secretType == "generic_api_key" {
+	} else if rar < 0.35 && (secretType == "generic_api_key" || secretType == "generic_password") {
 		conf -= 0.25
 		why = append(why, "english_like")
 	}
@@ -42,7 +42,7 @@ func Classify(path, secretType, secret string, structural bool) Decision {
 			return Decision{false, 0.1, append(why, "lockfile")}
 		}
 	}
-	if secretType == "generic_api_key" {
+	if secretType == "generic_api_key" || secretType == "generic_password" {
 		for _, p := range []string{".md", "docs/", "test/", "tests/", "example"} {
 			if strings.Contains(low, p) {
 				conf -= 0.25

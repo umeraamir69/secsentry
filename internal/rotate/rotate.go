@@ -39,6 +39,9 @@ var hints = map[string]string{
 	"jwt":                   "Rotate the signing secret so every issued token is invalidated.",
 	"db_url":                "Change the database password and update your secret store.",
 	"generic_api_key":       "Revoke this credential with whichever provider issued it, then move it to an environment variable.",
+	"generic_password":      "Change this password and store it in a secret manager, not in git.",
+	"xai_api_key":           "console.x.ai → API keys → revoke.",
+	"perplexity_api_key":    "perplexity.ai → API settings → revoke the key.",
 }
 
 const Fallback = "Revoke this credential with the issuing provider and move it out of source control."
