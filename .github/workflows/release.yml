@@ -1,8 +1,5 @@
-# Publishes pip and npm from one tag, so the two registries cannot drift.
-#
-# PyPI uses Trusted Publishing (OIDC) — configure a *pending* publisher at
-# pypi.org/manage/account/publishing pointing at this workflow filename, and no
-# token is ever stored.
+# Publishes the npm wrapper from a version tag. The engine is the Go binary
+# (`go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`).
 #
 # npm cannot create a package via OIDC (npm/cli#8544). Publish 1.0.0 once by
 # hand, attach a Trusted Publisher to the package, then delete NPM_TOKEN and
@@ -22,33 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-go@v5
         with:
-          python-version: "3.12"
-      - run: python -m pip install --upgrade pip build && python -m pip install -e ".[dev]"
+          go-version: "1.22"
       - name: Version sync
-        run: python scripts/check_version_sync.py
+        run: python3 scripts/check_version_sync.py
       - name: Tag matches VERSION
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           FILE="$(cat VERSION)"
           [ "$TAG" = "$FILE" ] || { echo "Tag $TAG != VERSION $FILE"; exit 1; }
-      - run: python -m pytest tests -q
-
-  pypi:
-    needs: verify
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install --upgrade pip build && python -m build
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - run: go test ./...
+      - run: go build -o secsentry ./cmd/secsentry
 
   npm:
     needs: verify
@@ -70,8 +53,6 @@ jobs:
           if [ -n "$NODE_AUTH_TOKEN" ]; then
             echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
           else
-            # setup-node may leave an empty _authToken line, which makes npm skip
-            # the OIDC exchange and fail with ENEEDAUTH. Remove it entirely.
             rm -f ~/.npmrc "$RUNNER_TEMP/.npmrc" || true
           fi
           npm publish --access public

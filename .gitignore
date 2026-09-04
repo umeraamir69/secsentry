@@ -33,6 +33,8 @@ credentials.json
 # Build artifacts
 dist/
 *.tgz
+/secsentry
+/secsentry.exe
 
 # Scan cache
 .secsentry/

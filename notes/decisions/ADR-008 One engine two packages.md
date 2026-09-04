@@ -2,31 +2,31 @@
 tags:
   - adr
 status: accepted
-date: 2026-09-03
+date: 2026-09-04
 ---
 
-# ADR-008 One engine two packages
+# ADR-008 One engine, Go binary
 
 ## Context
 
-We need install via **pip and npm** at the same time (`pip install secsentry` and `npx secsentry`). Duplicating detectors in TypeScript would drift and double the false-positive work.
+v1 shipped a Python engine and an npm wrapper that spawned it. Converting the product to Go means we must not keep two detector implementations. Duplicating rules in Python and Go would drift and double the false-positive work.
 
 ## Decision
 
-- Python package on PyPI is the engine and the CLI
+- The **Go module** (`github.com/umeraamir69/secsentry`) is the engine and the CLI
+- Install path is `go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`
 - npm package `secsentry` is a **bin wrapper** that invokes that CLI
-- Same version number on both registries, published in one GitHub Release
-- Next.js / GitHub Action also call the Python CLI or worker, not a JS port
+- The GitHub Action builds the Go binary with `setup-go`
+- Same version number in `VERSION`, `internal/version/version.go`, and `packages/npm/package.json`
 
 ## Consequences
 
-- Node users still need Python 3.12+ (document clearly in the npm README)
-- One test suite (pytest) covers detection
-- Claim both names early so they stay available
+- Node users need the Go binary on PATH (document clearly in the npm README)
+- One test suite (`go test ./...`) covers detection
+- The older Python tree is not the product engine
 
 ## Related
 
 - [[Dual packaging]]
 - [[ADR-001 Package name]]
-- [[PyPI publishing]]
 - [[Decisions]]

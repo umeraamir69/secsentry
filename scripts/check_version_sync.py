@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-"""Fail the build if VERSION, pyproject, package.json and __init__ disagree.
-
-Shipping pip 1.0.0 alongside npm 0.9.0 is the kind of mistake you only make
-once, in public.
-"""
+"""Fail the build if VERSION, the Go const, and package.json disagree."""
 
 from __future__ import annotations
 
 import json
 import re
 import sys
-import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,16 +14,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> int:
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
-    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    go = (ROOT / "internal" / "version" / "version.go").read_text(encoding="utf-8")
+    go_match = re.search(r'const Version = "([^"]+)"', go)
     package = json.loads((ROOT / "packages" / "npm" / "package.json").read_text(encoding="utf-8"))
-    init = (ROOT / "src" / "secsentry" / "__init__.py").read_text(encoding="utf-8")
-    match = re.search(r'__version__\s*=\s*"([^"]+)"', init)
 
     found = {
         "VERSION": version,
-        "pyproject.toml": pyproject["project"]["version"],
+        "internal/version/version.go": go_match.group(1) if go_match else "missing",
         "packages/npm/package.json": package["version"],
-        "src/secsentry/__init__.py": match.group(1) if match else "missing",
     }
 
     if len(set(found.values())) == 1:

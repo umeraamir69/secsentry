@@ -5,8 +5,7 @@ A Git **incident** scanner for leaked secrets. It searches the working tree and 
 Values are always masked. SecSentry never sends a credential to a vendor API to check whether it still works.
 
 ```bash
-pip install secsentry
-npx secsentry scan .
+go install github.com/umeraamir69/secsentry/cmd/secsentry@latest
 
 secsentry scan .              # working tree
 secsentry scan . --history    # every commit
@@ -39,11 +38,11 @@ Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/test
 
 | Layer | Behaviour |
 |---|---|
-| Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once and its findings attached to every commit and path that contains it. |
+| Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once. **Decode** (base64 / hex / percent) and **archives** (zip / tar / gz) so a key in `echo KEY \| base64` or `deploy.zip!.env` is still a case file. |
 | Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, database URLs, generic `*_API_KEY` plus Shannon entropy. |
 | Verification | Prefix, length, and format checks performed **locally**. No network calls, ever. |
-| Classifier | Path and context heuristics, with an optional scikit-learn model trained on a labeled corpus. |
-| Reporting | Terminal, JSON, self-contained HTML, and a localhost dashboard. Masked everywhere. |
+| Classifier | Path heuristics, Shannon entropy, and a local BPE rarity score. No network, no vendor model. |
+| Reporting | Terminal, JSON, SARIF, self-contained HTML, and a localhost dashboard. Masked everywhere. |
 | Enforcement | Pre-commit hook and a GitHub Action that fails the build and comments on the PR. |
 
 ## Masking hides the value, not the location
@@ -56,7 +55,7 @@ Measured on a generated corpus of 25 planted credentials and 26 negative lines a
 
 | Tool | Precision | Recall | F1 |
 |---|---|---|---|
-| SecSentry 1.0.0 | 1.00 | 1.00 | 1.00 |
+| SecSentry 1.2.0 | 1.00 | 1.00 | 1.00 |
 | Gitleaks 8.30.1 | 1.00 | 0.76 | 0.86 |
 | TruffleHog 3.97.4 | 1.00 | 0.40 | 0.57 |
 
@@ -82,6 +81,7 @@ secsentry scan . --severity high          # filter by severity
 secsentry scan . --type aws --type github # filter by detector
 secsentry scan . --format json -o out.json
 secsentry scan . --format html -o report.html
+secsentry scan . --format sarif -o secsentry.sarif
 secsentry serve . --history               # dashboard, loopback only
 
 secsentry install-hook                    # block commits that stage secrets
@@ -116,38 +116,35 @@ The check appears in the pull request sidebar as `SecSentry / secrets` and comme
 ## Development
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-
-pytest tests -q
-python scripts/check_version_sync.py
-python -m secsentry.eval.build_corpus
-python -m secsentry.eval.benchmark
+go test ./...
+go build -o secsentry ./cmd/secsentry
+./secsentry --version
+python3 scripts/check_version_sync.py
 ```
 
-`VERSION`, `pyproject.toml`, `packages/npm/package.json`, and `__init__.py` must always agree; CI enforces it.
+`VERSION`, `internal/version/version.go`, and `packages/npm/package.json` must always agree; CI enforces it.
 
 ## Layout
 
 ```
-src/secsentry/
-├── cli.py            argparse entry point
-├── models.py         Finding, mask_secret, fingerprint
-├── rotation.py       how to revoke each credential type
-├── git/              subprocess helpers, unique blob walk
-├── scan/             engine, working tree, staged, history, aggregate, ignore
-├── detectors/        regex rules and Shannon entropy
+cmd/secsentry/        CLI entry point
+internal/
+├── detect/           regex rules, keyword prefilter, Shannon entropy
 ├── verify/           local structural checks, no network
-├── classify/         heuristics, features, optional ML
-├── reports/          terminal, JSON, HTML, dashboard server
+├── classify/         heuristics + local BPE rarity
+├── scan/             engine, decode, archives, history, aggregate, ignore
+├── gitutil/          subprocess git, unique blob walk
+├── report/           terminal, JSON, HTML, SARIF, dashboard
 ├── hooks/            pre-commit
-└── eval/             corpus builder, training, benchmark
+├── rotate/           how to revoke each credential type
+├── model/            Finding, Mask, Fingerprint
+└── version/
 
-packages/npm/         wrapper that spawns the Python CLI
+packages/npm/         wrapper that spawns the Go CLI
 notes/                Obsidian vault: plan, ADRs, runbooks
 ```
 
-There is one detector implementation. The npm package, the GitHub Action, and any future web UI all shell out to the Python engine rather than reimplementing it.
+There is one detector implementation. The npm package, the GitHub Action, and any future web UI all shell out to the Go binary rather than reimplementing it.
 
 ## Architecture decisions
 

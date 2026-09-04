@@ -5,7 +5,7 @@ tags:
 
 # SecSentry
 
-Local Git secrets leak scanner. Python engine, **pip + npm** in the same release, optional Next.js site. Obsidian is the project brain — Cursor reads and writes these same files.
+Local Git secrets leak scanner. **Go engine**, npm wrapper, optional Next.js site. Obsidian is the project brain — Cursor reads and writes these same files.
 
 **Do not name the PyPI package `gitsentry`.** That name is taken. Use `secsentry`. See [[ADR-001 Package name]].
 
@@ -57,6 +57,7 @@ Local Git secrets leak scanner. Python engine, **pip + npm** in the same release
 - [[Research]]
 - [[Name availability]]
 - [[Competitor landscape]]
+- [[How the incumbents work]]
 
 ### Ops
 - [[Accounts and keys]]

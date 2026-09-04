@@ -11,47 +11,26 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-go@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip build
-          python -m pip install -e ".[dev]"
+          go-version: "1.22"
 
       - name: Version sync
-        run: python scripts/check_version_sync.py
+        run: python3 scripts/check_version_sync.py
 
       - name: Tests
-        run: python -m pytest tests -q
+        run: go test ./...
 
       - name: CLI smoke test
         run: |
-          secsentry --version
-          secsentry scan . --fail-on critical --no-cache
-
-      - name: Build distributions
-        run: |
-          python -m build
-          ls -la dist/
-
-      - name: Reject secrets in the sdist
-        run: |
-          if tar -tzf dist/*.tar.gz | grep -E '(^|/)\.env$|\.pem$|eval/\.data'; then
-            echo "Distribution contains files that must never ship."
-            exit 1
-          fi
-          echo "sdist contents look clean"
+          go build -o secsentry ./cmd/secsentry
+          ./secsentry --version
+          ./secsentry scan . --fail-on critical --no-cache
 
   npm:
     runs-on: ubuntu-latest

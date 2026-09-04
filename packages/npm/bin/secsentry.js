@@ -1,17 +1,14 @@
 #!/usr/bin/env node
 /**
- * Spawns the Python CLI. Does not reimplement detectors.
+ * Spawns the Go CLI. Does not reimplement detectors.
  */
 const { spawnSync } = require("child_process");
 
 const args = process.argv.slice(2);
-let r = spawnSync("secsentry", args, { stdio: "inherit" });
-if (r.error && r.error.code === "ENOENT") {
-  r = spawnSync("python3", ["-m", "secsentry", ...args], { stdio: "inherit" });
-}
+const r = spawnSync("secsentry", args, { stdio: "inherit" });
 if (r.error) {
   console.error(
-    "SecSentry needs Python 3.12+ and `pip install secsentry` (or a secsentry binary on PATH)."
+    "SecSentry needs the Go binary on PATH. Install with:\n  go install github.com/umeraamir69/secsentry/cmd/secsentry@latest"
   );
   process.exit(1);
 }

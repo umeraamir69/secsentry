@@ -6,34 +6,30 @@ tags:
 
 # Dual packaging (pip + npm)
 
-Ship **both** registries on every version. Same name, same version, same CLI.
+The engine is the **Go binary**. npm is a PATH wrapper, not a second scanner. [[ADR-008 One engine two packages]]
 
 ```
-pip install secsentry
-npm install -g secsentry
+go install github.com/umeraamir69/secsentry/cmd/secsentry@latest
 npx secsentry scan .
 ```
 
-`secsentry` is free on **PyPI and npm** (checked 2026-09-03). [[Name availability]]
-
-There is **one detector engine** (Python). npm is a wrapper, not a second scanner. [[ADR-008 One engine two packages]]
+`secsentry` is free on npm (checked 2026-09-03). [[Name availability]]
 
 ## Monorepo layout
 
 ```
 secsentry/
-├── src/secsentry/          # Python package (PyPI)
-├── pyproject.toml
-├── packages/npm/           # npm package
-│   ├── package.json        # name: secsentry, bin: secsentry
-│   ├── bin/secsentry.js    # finds python, runs the CLI
+├── cmd/secsentry/          # Go CLI
+├── internal/               # engine
+├── packages/npm/           # npm wrapper
+│   ├── package.json
+│   ├── bin/secsentry.js    # spawns the Go binary
 │   └── README.md
-├── web/                    # Next.js app (later)
-├── .github/workflows/release.yml   # publishes BOTH
-└── VERSION                 # single source, e.g. 0.1.0
+├── .github/workflows/release.yml
+└── VERSION
 ```
 
-`package.json` `"version"` and `[project].version` must match. Release CI reads `VERSION` (or git tag `v0.1.0`) and writes both.
+`package.json` `"version"` and `internal/version/version.go` must match `VERSION`.
 
 ## What the npm package does
 

@@ -34,16 +34,14 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up Go
+      uses: actions/setup-go@v5
       with:
-        python-version: "3.12"
+        go-version: "1.22"
 
-    - name: Install SecSentry
+    - name: Build SecSentry
       shell: bash
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install "${{ github.action_path }}"
+      run: go build -o "${RUNNER_TEMP}/secsentry" "${{ github.action_path }}/cmd/secsentry"
 
     - name: Scan
       id: scan
@@ -61,12 +59,12 @@ runs:
         mkdir -p .secsentry
         REPORT=".secsentry/github-action.json"
         set +e
-        secsentry "${ARGS[@]}" --output "$REPORT"
+        "${RUNNER_TEMP}/secsentry" "${ARGS[@]}" --output "$REPORT"
         STATUS=$?
         set -e
         COUNT=0
         if [ -f "$REPORT" ]; then
-          COUNT=$(python -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d.get('findings',[])))" "$REPORT")
+          COUNT=$(jq '.findings | length' "$REPORT")
         fi
         echo "findings-count=$COUNT" >> "$GITHUB_OUTPUT"
         echo "report-path=$REPORT" >> "$GITHUB_OUTPUT"
@@ -75,17 +73,12 @@ runs:
         echo >> "$GITHUB_STEP_SUMMARY"
         echo "Secrets are masked. This check never sends keys to vendor APIs." >> "$GITHUB_STEP_SUMMARY"
         if [ "$COUNT" -gt 0 ] && [ -f "$REPORT" ]; then
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
-        import json, pathlib
-        p = pathlib.Path(".secsentry/github-action.json")
-        data = json.loads(p.read_text())
-        print("")
-        print("| Severity | Type | File | Line | Why |")
-        print("|---|---|---|---|---|")
-        for f in data.get("findings", [])[:40]:
-            why = "; ".join(f.get("why") or [])[:80]
-            print(f"| {f.get('severity','')} | {f.get('secret_type','')} | `{f.get('path','')}` | {f.get('line','')} | {why} |")
-        PY
+          jq -r '
+            "",
+            "| Severity | Type | File | Line | Why |",
+            "|---|---|---|---|---|",
+            (.findings[:40][] | "| \(.severity) | \(.secret_type) | `\(.path)` | \(.line) | \((.why // []) | join("; ") | .[0:80]) |")
+          ' "$REPORT" >> "$GITHUB_STEP_SUMMARY"
         fi
         exit "$STATUS"
 

@@ -1,6 +1,6 @@
 # Project directory and structure
 
-Every path below exists in this repo. Python engine is the only place detectors live. npm and the GitHub Action **call** that engine.
+Every path below exists in this repo. The Go engine is the only place detectors live. npm and the GitHub Action **call** that binary.
 
 ```
 secsentry/
@@ -8,8 +8,11 @@ secsentry/
 ├── README.md                      Complete plan + how to run
 ├── STRUCTURE.md                   This file
 ├── LICENSE                        MIT
-├── VERSION                        Single version for pip and npm
-├── pyproject.toml
+├── VERSION                        Single version for Go and npm
+├── go.mod
+├── cmd/secsentry/                 Go CLI
+├── internal/                      Detector engine (Go)
+├── pyproject.toml                 Legacy Python tree; not the product engine
 ├── action.yml                     Marketplace-ready GitHub Action
 ├── SECURITY.md                    How to report issues; no live secrets
 ├── .gitignore

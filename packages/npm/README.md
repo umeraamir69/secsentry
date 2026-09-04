@@ -1,10 +1,10 @@
 # npm package
 
-Same version as PyPI (`VERSION` in the repo root). This binary only launches the Python engine.
+Same version as the Go release (`VERSION` in the repo root). This binary only launches the Go CLI.
 
 ```
-npm install -g secsentry
+go install github.com/umeraamir69/secsentry/cmd/secsentry@latest
 npx secsentry scan .
 ```
 
-Requires Python 3.12+ and `pip install secsentry`.
+Requires the `secsentry` binary on PATH (`go install` or a release build).

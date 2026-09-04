@@ -1,6 +1,39 @@
 # Changelog
 
-All notable changes to SecSentry. Versions are shared by the pip and npm packages.
+All notable changes to SecSentry. The engine is the Go binary; the npm package is a wrapper around it.
+
+## [1.2.0] — 2026-09-04
+
+The detector engine is Go. One implementation, one binary.
+
+### Added
+
+- Go CLI (`go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`) with the same scan / serve / hook commands.
+- Keyword prefilter so regex does not run on chunks with no secret-shaped tokens.
+- Local BPE rarity score in the classifier (no network, no vendor model).
+- `--format sarif` for GitHub code scanning.
+- Extra formats from a structural-validator reference set: AWS STS (`ASIA`), labeled AWS secret keys, Stripe test/restricted/webhook, GCP service-account JSON. Publishable `pk_*` Stripe keys are ignored on purpose.
+
+### Changed
+
+- GitHub Action builds the Go binary with `setup-go` instead of installing a Python package.
+- npm wrapper spawns the Go `secsentry` on PATH.
+- ADR-008: one Go engine, not a Python engine plus wrappers.
+
+## [1.1.0] — 2026-09-04
+
+Close the gap Gitleaks already had: look *inside* wrappers, still never print the value.
+
+### Added
+
+- **Decode pass** — base64, hex, and percent-encoding, recursive up to 3 layers. A key sitting in `echo KEY | base64` is now a finding, tagged `decoded:base64`, with the file and line of the wrapper.
+- **Archive walk** — zip, tar, gzip, and nested archives (depth 2). Location is `deploy.zip!secrets/.env`.
+- History reads blobs as raw bytes so a committed zip is not corrupted by UTF-8 replace.
+- Eval corpus plants one base64-hidden AWS key and one zip-hidden GitHub token.
+
+### Why this version exists
+
+v1.0 only scanned UTF-8 as stored. That is how a developer “hides” a leak from a naive scanner without actually rotating. Gitleaks and TruffleHog already unwrap these. We do it locally, same as them — no vendor HTTP — and we still mask.
 
 ## [1.0.0] — 2026-09-04
 

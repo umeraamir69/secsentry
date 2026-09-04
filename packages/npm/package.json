@@ -1,7 +1,7 @@
 {
   "name": "secsentry",
-  "version": "1.0.0",
-  "description": "CLI wrapper for the SecSentry Python secrets scanner",
+  "version": "1.2.0",
+  "description": "CLI wrapper for the SecSentry Go secrets scanner",
   "bin": {
     "secsentry": "bin/secsentry.js"
   },
