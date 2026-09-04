@@ -8,7 +8,7 @@ tags:
 
 Read 2026-09-04 from the public READMEs. Stars at that date: Gitleaks **29.1k**, TruffleHog **27.7k**, Betterleaks **1.8k**.
 
-Gitleaks is **feature complete**. The original author is shifting to [Betterleaks](https://github.com/betterleaks/betterleaks). Competing with Gitleaks on features is competing with a frozen product; the live race is Betterleaks vs TruffleHog. We do not join that race on rule count or live verification.
+Gitleaks is **feature complete**. The original author is shifting to [Betterleaks](https://github.com/betterleaks/betterleaks). Competing with Gitleaks on features is competing with a frozen product. The live race on *coverage + live verify* is Betterleaks vs TruffleHog vs **[Prowl](https://github.com/Lercas/prowl)**. We do not join that race. [[Prowl]]
 
 ## How each one works
 
@@ -145,7 +145,7 @@ Not “25 regexes.” These three:
 2. **Fingerprint identity** so People / Timeline / allowlist are about *secrets*, not lines.
 3. **Local rarity classifier** (entropy + BPE + structural) with an honest benchmark vs Gitleaks/TruffleHog that admits corpus bias.
 
-If you add one research-shaped piece after v1, make it **#3**, not another vendor prefix.
+If you add one research-shaped piece after v1, make it **#3**, not another vendor prefix. Do not try to out-Prowl Prowl on multilingual prose or `--verify`.
 
 ## Related
 
@@ -154,4 +154,4 @@ If you add one research-shaped piece after v1, make it **#3**, not another vendo
 - [[ADR-009 No live secret verification]]
 - [[Benchmark results]]
 - [[GitHub search dorks]]
-- [[Detector catalog]]
+- [[Prowl]]

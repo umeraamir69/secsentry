@@ -2,6 +2,25 @@
 
 All notable changes to SecSentry. The engine is the Go binary; the npm package is a wrapper around it.
 
+## [1.3.0] — 2026-09-04
+
+Pack 1 structured detectors. Precision-first: no generic passwords, no unlabeled high-entropy, no live verify.
+
+### Added
+
+- Slack incoming webhooks (`hooks.slack.com/services/…`), Discord bot tokens, Telegram bot tokens, Azure storage account keys, Datadog API keys, DigitalOcean `dop_v1_` tokens.
+- `Authorization: Basic …` when the payload is base64 `user:password`.
+- `nats://` / `sqlserver://` / SQLAlchemy / JDBC URLs that actually carry a password.
+
+### Changed
+
+- PEM: `ENCRYPTED PRIVATE KEY`, body on the same line as the header (JSON one-liners). A header with no body is still not a finding. Public certificates are ignored.
+- GCP service-account JSON: truncated snippets that still contain `service_account` and a private key or SA email.
+- AWS secret keys: `aws_secret_access_key is …` (not only `=`), and a 40-char secret on the line after `AKIA`/`ASIA`. Free-floating 40-char blobs are not reported.
+- Twilio: 32-hex auth token when `TWILIO_API_KEY` / `TWILIO_AUTH_TOKEN` is on the same line.
+
+ProwlBench numbers in the README are still **1.2.0**. Re-run before claiming a new row.
+
 ## [1.2.0] — 2026-09-04
 
 The detector engine is Go. One implementation, one binary.
@@ -12,7 +31,8 @@ The detector engine is Go. One implementation, one binary.
 - Keyword prefilter so regex does not run on chunks with no secret-shaped tokens.
 - Local BPE rarity score in the classifier (no network, no vendor model).
 - `--format sarif` for GitHub code scanning.
-- Extra formats from a structural-validator reference set: AWS STS (`ASIA`), labeled AWS secret keys, Stripe test/restricted/webhook, GCP service-account JSON. Publishable `pk_*` Stripe keys are ignored on purpose.
+- Extra formats from a structural-validator reference set: AWS STS (`ASIA`), labeled AWS secret keys, Stripe test/restricted/webhook, GCP service-account JSON. Publishable `pk_*` Stripe keys and Twilio Account SIDs are ignored on purpose.
+- Slack segment-shaped tokens, Redis/AMQP URLs, skip of placeholder DB passwords, and PEM headers that have no key body (Prowl's FP fix, done locally).
 
 ### Changed
 

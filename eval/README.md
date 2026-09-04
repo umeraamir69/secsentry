@@ -38,3 +38,5 @@ Two caveats worth stating out loud:
 
 - The corpus was written alongside SecSentry's detector list, which is a real home-field advantage.
 - TruffleHog is designed around verifying live credentials. Planted keys can never verify, so this benchmark measures the part of TruffleHog that matters least to it. We pass `--results=verified,unknown,unverified`; without that flag it reports almost nothing here.
+
+ProwlBench (Lercas/prowl) is the external eval. Adapter: `eval/cmd/prowlbench`. Artifact (not gitignored): `eval/results/prowlbench_leaderboard.json`. Gitleaks/TruffleHog on that run match the published leaderboard. See notes/research/Prowl.md.

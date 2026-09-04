@@ -13,6 +13,8 @@ We **do not copy their TOML**. We implement our own Python detectors with the sa
 
 Honest limit: “as many as we can” means **known prefixes + generic entropy**, not magic. Unknown vendors still hit `generic-api-key`. [[API key detectors]]
 
+Go engine 1.3.0 (pack 1): Slack webhooks, Discord bot tokens, Telegram bot tokens, Azure storage account keys, Datadog API keys, DigitalOcean `dop_v1_`, Basic auth, JDBC/NATS/SQLAlchemy URLs. Still not: generic passwords in prose, unlabeled high-entropy, live verify.
+
 ## Coverage tiers (build in this order)
 
 ### P0 — week 1 (must demo)

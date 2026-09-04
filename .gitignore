@@ -1,6 +1,7 @@
 # Generated eval corpus (rebuild with python -m secsentry.eval.build_corpus)
 eval/.data/
 eval/results/*.json
+!eval/results/prowlbench_leaderboard.json
 
 # Python
 .venv/

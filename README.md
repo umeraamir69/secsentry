@@ -39,7 +39,7 @@ Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/test
 | Layer | Behaviour |
 |---|---|
 | Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once. **Decode** (base64 / hex / percent) and **archives** (zip / tar / gz) so a key in `echo KEY \| base64` or `deploy.zip!.env` is still a case file. |
-| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, database URLs, generic `*_API_KEY` plus Shannon entropy. |
+| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack (bot + webhook), Discord, Telegram, Azure storage, Datadog, DigitalOcean, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, Basic auth, database URLs, generic `*_API_KEY` plus Shannon entropy. |
 | Verification | Prefix, length, and format checks performed **locally**. No network calls, ever. |
 | Classifier | Path heuristics, Shannon entropy, and a local BPE rarity score. No network, no vendor model. |
 | Reporting | Terminal, JSON, SARIF, self-contained HTML, and a localhost dashboard. Masked everywhere. |
@@ -51,7 +51,35 @@ You cannot rotate what you cannot find, so every report shows `path:line:column`
 
 ## Benchmark
 
-Measured on a generated corpus of 25 planted credentials and 26 negative lines across three commits. Rebuild it with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
+Two measurements. The first is the **incident we actually sell**. The second is a regression corpus — read it skeptically.
+
+### Demo: deleted keys still in git ([testKeys](https://github.com/umeraamir69/testKeys))
+
+Working tree is clean. History is not.
+
+| Tool | Findings | Case file | Raw secret in output |
+|---|---|---|---|
+| **SecSentry 1.2.0** | **8 unique / 11 occ**, all `still_in_head=false` | who / when / rotate | no |
+| zerosecret | 9 occurrences, not aggregated | no | **yes** (`matched_string`) |
+| Gitleaks 8.30 | 7 (missed the AWS key) | commit metadata | Secret field |
+| TruffleHog (unverified on) | 2 Postgres URLs | no | — |
+
+### ProwlBench (24,603 cases, independent)
+
+Same protocol as [Lercas/prowlbench](https://github.com/Lercas/prowlbench). Gitleaks and TruffleHog match the published leaderboard, so the row is comparable. Prowl cascade is quoted, not re-run.
+
+| Tool | Precision | Recall | F1 |
+|---|---|---|---|
+| Prowl cascade (published) | 0.951 | 0.823 | 0.883 |
+| Gitleaks | 0.931 | 0.413 | 0.573 |
+| **SecSentry 1.2.0** | **0.951** | 0.347 | 0.509 |
+| TruffleHog | 0.940 | 0.303 | 0.458 |
+
+Highest precision of the three we ran. Recall is lower because the set is heavy on `generic_password` / prose keys we do not target. Structured-token recall (T1) is 0.64 vs Gitleaks 0.65; the gap is T2 generic-context (0.01 vs 0.35). Artifact: `eval/results/prowlbench_leaderboard.json`. 1.3.0 added more structured prefixes; that row is not in this table until the harness is re-run.
+
+### Planted corpus (25 designed-to-match secrets)
+
+Rebuild with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
 
 | Tool | Precision | Recall | F1 |
 |---|---|---|---|
@@ -59,14 +87,14 @@ Measured on a generated corpus of 25 planted credentials and 26 negative lines a
 | Gitleaks 8.30.1 | 1.00 | 0.76 | 0.86 |
 | TruffleHog 3.97.4 | 1.00 | 0.40 | 0.57 |
 
-**Read that table skeptically.** The corpus was written alongside SecSentry's own detector list, so a perfect score means "it finds what it was built to find," not that it wins on real repositories. Gitleaks ships far more rules than we do and will beat us on vendors we have never heard of. TruffleHog is built around live verification, which a corpus of necessarily-fake keys cannot exercise — its score here measures the wrong thing for its design.
+**Read that table skeptically.** The corpus was written alongside SecSentry's own detector list, so a perfect score means "it finds what it was built to find," not that it wins on real repositories. Gitleaks ships far more rules than we do and will beat us on vendors we have never heard of. TruffleHog is built around live verification, which a corpus of necessarily-fake keys cannot exercise.
 
-An earlier version of this corpus used readable filler like `TESTONLY` padded with repeated characters. Those strings fall below Gitleaks' entropy thresholds, so it discarded them and scored 0.32 recall. Switching to high-entropy generated values raised it to 0.68. That 36-point swing came entirely from how the fixtures were written, which is worth remembering whenever you read someone else's benchmark.
+An earlier version of this corpus used readable filler like `TESTONLY` padded with repeated characters. Those strings fall below Gitleaks' entropy thresholds, so it discarded them and scored 0.32 recall. Switching to high-entropy generated values raised it to 0.68. That 36-point swing came entirely from how the fixtures were written.
 
 ## What it will not do
 
 - Verify keys against vendor APIs. Sending a leaked credential to a third party to test it is the behaviour we are avoiding.
-- Match Gitleaks rule for rule. We cover the common cases well and fall back to entropy for the rest.
+- Match Gitleaks rule for rule, or Prowl's 159 YAML templates and live `--verify`. We cover the common cases and stay offline.
 - Scan for SQL injection, XSS, or vulnerable dependencies.
 - Detect secrets in binaries, or anything deliberately obfuscated.
 - Save you from `git commit --no-verify`.

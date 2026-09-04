@@ -103,6 +103,11 @@ func itoa(n int) string {
 	return string(b[i:])
 }
 
+// FindingsFromText runs detectors + verify + classify on a snippet (and decode layers).
+func FindingsFromText(path, text string) []model.Finding {
+	return findingsFromText(path, text, "")
+}
+
 func findingsFromText(path, text, blobOID string) []model.Finding {
 	var found []model.Finding
 	seen := map[string]bool{}

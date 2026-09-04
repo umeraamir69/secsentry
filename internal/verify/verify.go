@@ -8,12 +8,19 @@ import (
 )
 
 var (
-	reAWS     = regexp.MustCompile(`^A[KS]IA[0-9A-Z]{16}$`)
-	reAWSSec  = regexp.MustCompile(`^[A-Za-z0-9/+=]{40}$`)
-	reShopify = regexp.MustCompile(`^shp(?:ss|at|ca|pa)_[0-9a-fA-F]{32}$`)
-	reTwilio  = regexp.MustCompile(`^SK[0-9a-fA-F]{32}$`)
-	reStripe  = regexp.MustCompile(`^(?:sk|rk)_(?:live|test)_[0-9A-Za-z]{24,}$`)
-	reWhsec   = regexp.MustCompile(`^whsec_[0-9A-Za-z]{32,}$`)
+	reAWS      = regexp.MustCompile(`^A[KS]IA[0-9A-Z]{16}$`)
+	reAWSSec   = regexp.MustCompile(`^[A-Za-z0-9/+=]{40}$`)
+	reShopify  = regexp.MustCompile(`^shp(?:ss|at|ca|pa)_[0-9a-fA-F]{32}$`)
+	reTwilio   = regexp.MustCompile(`^SK[0-9a-fA-F]{32}$`)
+	reTwilioAT = regexp.MustCompile(`^[0-9a-fA-F]{32}$`)
+	reStripe   = regexp.MustCompile(`^(?:sk|rk)_(?:live|test)_[0-9A-Za-z]{24,}$`)
+	reWhsec    = regexp.MustCompile(`^whsec_[0-9A-Za-z]{32,}$`)
+	reSlackWH  = regexp.MustCompile(`hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]{16,}`)
+	reDiscord  = regexp.MustCompile(`^[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,40}$`)
+	reTelegram = regexp.MustCompile(`^[0-9]{8,10}:[A-Za-z0-9_-]{35}$`)
+	reAzureKey = regexp.MustCompile(`^[A-Za-z0-9+/]{86}={0,2}$`)
+	reDatadog  = regexp.MustCompile(`^[a-f0-9]{32}$`)
+	reDO       = regexp.MustCompile(`^do[por]_v1_[a-f0-9]{64}$`)
 )
 
 func OK(secretType, secret string) bool {
@@ -46,12 +53,40 @@ func OK(secretType, secret string) bool {
 	case secretType == "sendgrid_key":
 		return strings.HasPrefix(secret, "SG.") && strings.Count(secret, ".") == 2
 	case secretType == "twilio_key":
-		return reTwilio.MatchString(secret)
+		return reTwilio.MatchString(secret) || reTwilioAT.MatchString(secret)
+	case secretType == "slack_webhook":
+		return reSlackWH.MatchString(secret)
+	case secretType == "discord_bot_token":
+		return reDiscord.MatchString(secret) && !strings.HasPrefix(secret, "eyJ")
+	case secretType == "telegram_bot_token":
+		return reTelegram.MatchString(secret)
+	case secretType == "azure_storage_key":
+		return reAzureKey.MatchString(secret)
+	case secretType == "datadog_api_key":
+		return reDatadog.MatchString(secret)
+	case secretType == "digitalocean_token":
+		return reDO.MatchString(strings.ToLower(secret))
+	case secretType == "basic_auth":
+		return basicOK(secret)
 	case secretType == "npm_token":
 		return strings.HasPrefix(secret, "npm_") && len(secret) == 40
 	default:
 		return true
 	}
+}
+
+func basicOK(secret string) bool {
+	secret = strings.Trim(secret, `"'`)
+	raw, err := base64.StdEncoding.DecodeString(secret)
+	if err != nil {
+		pad := secret + strings.Repeat("=", (4-len(secret)%4)%4)
+		raw, err = base64.StdEncoding.DecodeString(pad)
+		if err != nil {
+			return false
+		}
+	}
+	s := string(raw)
+	return strings.Contains(s, ":") && len(s) >= 3
 }
 
 func jwtOK(secret string) bool {

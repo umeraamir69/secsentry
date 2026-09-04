@@ -153,3 +153,13 @@ func iterDecoded(text string) []decodedChunk {
 	}
 	return out
 }
+
+// DecodedTexts returns printable layers unwrapped from base64/hex/percent encodings.
+func DecodedTexts(text string) []string {
+	chunks := iterDecoded(text)
+	out := make([]string, 0, len(chunks))
+	for _, c := range chunks {
+		out = append(out, c.Text)
+	}
+	return out
+}

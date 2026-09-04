@@ -1,0 +1,651 @@
+{
+  "_meta": {
+    "dataset": "Podric/prowl-secrets-corpus",
+    "file": "prowlbench.parquet",
+    "url": "https://huggingface.co/datasets/Podric/prowl-secrets-corpus",
+    "license": "CC BY-NC 4.0",
+    "n_cases": 24603,
+    "n_positive": 16552,
+    "n_negative": 8051,
+    "protocol": "snippet-level flag>=1; extensions per source; secsentry uses Detect+verify+classify+decode",
+    "published_leaderboard_note": "Prowl cascade F1~0.883 on this set (from prowlbench README); not re-run here"
+  },
+  "tools": {
+    "secsentry": {
+      "precision": 0.9507,
+      "recall": 0.3473,
+      "f1": 0.5087,
+      "accuracy": 0.5488,
+      "tp": 5748,
+      "fp": 298,
+      "fn": 10804,
+      "tn": 7753,
+      "per_tier": {
+        "T1_structured": {
+          "recall": 0.6441,
+          "n": 7033
+        },
+        "T2_generic_context": {
+          "recall": 0.0105,
+          "n": 3519
+        },
+        "T3_freeform_multilingual": {
+          "recall": 0.1968,
+          "n": 6000
+        },
+        "T4_hard_negative": {
+          "fp_rate": 0.037,
+          "n": 8051
+        }
+      },
+      "per_language": {
+        "de": {
+          "recall": 0.3186,
+          "n": 408
+        },
+        "en": {
+          "recall": 0.2873,
+          "n": 11430
+        },
+        "es": {
+          "recall": 0.5013,
+          "n": 387
+        },
+        "fr": {
+          "recall": 0.457,
+          "n": 1536
+        },
+        "it": {
+          "recall": 0.4901,
+          "n": 151
+        },
+        "ja": {
+          "recall": 0.5407,
+          "n": 688
+        },
+        "non-en": {
+          "recall": 0.4893,
+          "n": 654
+        },
+        "ru": {
+          "recall": 0.5294,
+          "n": 663
+        },
+        "zh": {
+          "recall": 0.5055,
+          "n": 635
+        }
+      },
+      "per_source": {
+        "code": {
+          "recall": 0.2199,
+          "n": 6693
+        },
+        "confluence": {
+          "recall": 0.4533,
+          "n": 2643
+        },
+        "jira": {
+          "recall": 0.4194,
+          "n": 2990
+        },
+        "log": {
+          "recall": 0.3649,
+          "n": 2458
+        },
+        "slack": {
+          "recall": 0.5243,
+          "n": 1768
+        }
+      },
+      "top_miss_types": [
+        [
+          "generic_password",
+          3284
+        ],
+        [
+          "generic_api_key",
+          3143
+        ],
+        [
+          "generic_high_entropy",
+          1101
+        ],
+        [
+          "basic_auth_header",
+          613
+        ],
+        [
+          "telegram_bot_token",
+          292
+        ],
+        [
+          "azure_storage_key",
+          282
+        ],
+        [
+          "slack_webhook",
+          278
+        ],
+        [
+          "discord_bot_token",
+          270
+        ],
+        [
+          "datadog_api_key",
+          258
+        ],
+        [
+          "digitalocean_token",
+          258
+        ],
+        [
+          "private_key_pem",
+          246
+        ],
+        [
+          "gcp_service_account",
+          196
+        ],
+        [
+          "twilio_api_key",
+          174
+        ],
+        [
+          "db_connection_string",
+          160
+        ],
+        [
+          "aws_secret_access_key",
+          115
+        ]
+      ],
+      "top_hit_types": [
+        [
+          "db_connection_string",
+          983
+        ],
+        [
+          "stripe_secret_key",
+          301
+        ],
+        [
+          "gitlab_pat",
+          295
+        ],
+        [
+          "sendgrid_api_key",
+          294
+        ],
+        [
+          "jwt",
+          291
+        ],
+        [
+          "huggingface_token",
+          284
+        ],
+        [
+          "npm_token",
+          282
+        ],
+        [
+          "gcp_api_key",
+          282
+        ],
+        [
+          "slack_token",
+          278
+        ],
+        [
+          "shopify_token",
+          276
+        ],
+        [
+          "github_token_oauth",
+          270
+        ],
+        [
+          "github_pat_classic",
+          268
+        ],
+        [
+          "aws_access_key_id",
+          264
+        ],
+        [
+          "anthropic_api_key",
+          244
+        ],
+        [
+          "openai_api_key",
+          218
+        ]
+      ]
+    },
+    "gitleaks": {
+      "precision": 0.9314,
+      "recall": 0.4135,
+      "f1": 0.5727,
+      "accuracy": 0.5849,
+      "tp": 6844,
+      "fp": 504,
+      "fn": 9708,
+      "tn": 7547,
+      "per_tier": {
+        "T1_structured": {
+          "recall": 0.6528,
+          "n": 7033
+        },
+        "T2_generic_context": {
+          "recall": 0.3549,
+          "n": 3519
+        },
+        "T3_freeform_multilingual": {
+          "recall": 0.1673,
+          "n": 6000
+        },
+        "T4_hard_negative": {
+          "fp_rate": 0.0626,
+          "n": 8051
+        }
+      },
+      "per_language": {
+        "de": {
+          "recall": 0.3627,
+          "n": 408
+        },
+        "en": {
+          "recall": 0.3934,
+          "n": 11430
+        },
+        "es": {
+          "recall": 0.584,
+          "n": 387
+        },
+        "fr": {
+          "recall": 0.3783,
+          "n": 1536
+        },
+        "it": {
+          "recall": 0.3113,
+          "n": 151
+        },
+        "ja": {
+          "recall": 0.577,
+          "n": 688
+        },
+        "non-en": {
+          "recall": 0.7324,
+          "n": 654
+        },
+        "ru": {
+          "recall": 0.4163,
+          "n": 663
+        },
+        "zh": {
+          "recall": 0.3039,
+          "n": 635
+        }
+      },
+      "per_source": {
+        "code": {
+          "recall": 0.4055,
+          "n": 6693
+        },
+        "confluence": {
+          "recall": 0.4272,
+          "n": 2643
+        },
+        "jira": {
+          "recall": 0.4187,
+          "n": 2990
+        },
+        "log": {
+          "recall": 0.3507,
+          "n": 2458
+        },
+        "slack": {
+          "recall": 0.5017,
+          "n": 1768
+        }
+      },
+      "top_miss_types": [
+        [
+          "generic_password",
+          3189
+        ],
+        [
+          "generic_api_key",
+          1601
+        ],
+        [
+          "db_connection_string",
+          1095
+        ],
+        [
+          "generic_high_entropy",
+          784
+        ],
+        [
+          "basic_auth_header",
+          597
+        ],
+        [
+          "telegram_bot_token",
+          251
+        ],
+        [
+          "openai_api_key",
+          197
+        ],
+        [
+          "datadog_api_key",
+          194
+        ],
+        [
+          "aws_access_key_id",
+          192
+        ],
+        [
+          "discord_bot_token",
+          186
+        ],
+        [
+          "huggingface_token",
+          177
+        ],
+        [
+          "gcp_api_key",
+          138
+        ],
+        [
+          "jwt",
+          128
+        ],
+        [
+          "npm_token",
+          127
+        ],
+        [
+          "sendgrid_api_key",
+          125
+        ]
+      ],
+      "top_hit_types": [
+        [
+          "generic_api_key",
+          1635
+        ],
+        [
+          "generic_high_entropy",
+          354
+        ],
+        [
+          "gitlab_pat",
+          297
+        ],
+        [
+          "slack_webhook",
+          293
+        ],
+        [
+          "shopify_token",
+          276
+        ],
+        [
+          "azure_storage_key",
+          271
+        ],
+        [
+          "github_token_oauth",
+          270
+        ],
+        [
+          "github_pat_classic",
+          268
+        ],
+        [
+          "gcp_service_account",
+          265
+        ],
+        [
+          "private_key_pem",
+          219
+        ],
+        [
+          "slack_token",
+          213
+        ],
+        [
+          "github_pat_fine_grained",
+          195
+        ],
+        [
+          "stripe_secret_key",
+          179
+        ],
+        [
+          "sendgrid_api_key",
+          175
+        ],
+        [
+          "jwt",
+          170
+        ]
+      ]
+    },
+    "trufflehog": {
+      "precision": 0.94,
+      "recall": 0.3031,
+      "f1": 0.4584,
+      "accuracy": 0.5181,
+      "tp": 5017,
+      "fp": 320,
+      "fn": 11535,
+      "tn": 7731,
+      "per_tier": {
+        "T1_structured": {
+          "recall": 0.6036,
+          "n": 7033
+        },
+        "T2_generic_context": {
+          "recall": 0.0045,
+          "n": 3519
+        },
+        "T3_freeform_multilingual": {
+          "recall": 0.126,
+          "n": 6000
+        },
+        "T4_hard_negative": {
+          "fp_rate": 0.0397,
+          "n": 8051
+        }
+      },
+      "per_language": {
+        "de": {
+          "recall": 0.3284,
+          "n": 408
+        },
+        "en": {
+          "recall": 0.2318,
+          "n": 11430
+        },
+        "es": {
+          "recall": 0.491,
+          "n": 387
+        },
+        "fr": {
+          "recall": 0.444,
+          "n": 1536
+        },
+        "it": {
+          "recall": 0.4901,
+          "n": 151
+        },
+        "ja": {
+          "recall": 0.5189,
+          "n": 688
+        },
+        "non-en": {
+          "recall": 0.4587,
+          "n": 654
+        },
+        "ru": {
+          "recall": 0.4887,
+          "n": 663
+        },
+        "zh": {
+          "recall": 0.4819,
+          "n": 635
+        }
+      },
+      "per_source": {
+        "code": {
+          "recall": 0.1787,
+          "n": 6693
+        },
+        "confluence": {
+          "recall": 0.4098,
+          "n": 2643
+        },
+        "jira": {
+          "recall": 0.3498,
+          "n": 2990
+        },
+        "log": {
+          "recall": 0.3255,
+          "n": 2458
+        },
+        "slack": {
+          "recall": 0.5045,
+          "n": 1768
+        }
+      },
+      "top_miss_types": [
+        [
+          "generic_password",
+          3297
+        ],
+        [
+          "generic_api_key",
+          3214
+        ],
+        [
+          "generic_high_entropy",
+          1111
+        ],
+        [
+          "basic_auth_header",
+          617
+        ],
+        [
+          "db_connection_string",
+          508
+        ],
+        [
+          "gcp_api_key",
+          285
+        ],
+        [
+          "private_key_pem",
+          272
+        ],
+        [
+          "shopify_token",
+          270
+        ],
+        [
+          "discord_bot_token",
+          269
+        ],
+        [
+          "twilio_api_key",
+          266
+        ],
+        [
+          "gcp_service_account",
+          265
+        ],
+        [
+          "aws_access_key_id",
+          263
+        ],
+        [
+          "jwt",
+          179
+        ],
+        [
+          "aws_secret_access_key",
+          173
+        ],
+        [
+          "datadog_api_key",
+          166
+        ]
+      ],
+      "top_hit_types": [
+        [
+          "db_connection_string",
+          635
+        ],
+        [
+          "stripe_secret_key",
+          301
+        ],
+        [
+          "sendgrid_api_key",
+          299
+        ],
+        [
+          "gitlab_pat",
+          295
+        ],
+        [
+          "slack_webhook",
+          293
+        ],
+        [
+          "azure_storage_key",
+          285
+        ],
+        [
+          "huggingface_token",
+          283
+        ],
+        [
+          "npm_token",
+          281
+        ],
+        [
+          "github_token_oauth",
+          269
+        ],
+        [
+          "github_pat_classic",
+          268
+        ],
+        [
+          "digitalocean_token",
+          263
+        ],
+        [
+          "anthropic_api_key",
+          243
+        ],
+        [
+          "slack_token",
+          223
+        ],
+        [
+          "openai_api_key",
+          213
+        ],
+        [
+          "telegram_bot_token",
+          207
+        ]
+      ]
+    }
+  }
+}
