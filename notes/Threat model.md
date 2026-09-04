@@ -25,7 +25,7 @@ Hard-coded credentials in text files that enter git (working tree, index, or his
 
 ## Rules for this project
 
-- Mask secrets in all output
+- Mask secret **values** in all output; still show file, line, and column so the leak can be fixed
 - Fingerprint instead of storing raw values
 - Allowlist by fingerprint, never by pasting the secret into config
 - Demo repo uses fake values only

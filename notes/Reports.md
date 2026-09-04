@@ -6,11 +6,11 @@ tags:
 
 # Reports
 
-Three surfaces, one [[Finding model]]. Never print raw secrets.
+Three surfaces, one [[Finding model]]. Never print raw **values**. Always print **where** it leaked (file, line, column, commit). [[ADR-004 Mask secrets never print them]]
 
 ## Terminal
 
-Default. See [[CLI]]. Professional Rich output: severity counts, masked secrets, file, line, commit, confidence.
+Default. See [[CLI]]. Each finding leads with `path:line:column`, then masked preview, then why / still-in-HEAD.
 
 ## JSON
 

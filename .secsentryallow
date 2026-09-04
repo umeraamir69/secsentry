@@ -1,0 +1,31 @@
+# Findings SecSentry accepts when scanning its own repo.
+#
+# Every entry is a SHA-256 fingerprint, never the value itself — see
+# ADR-004 (Mask secrets, never print them). These are the fake credentials
+# the test suite and the eval corpus generator need in order to prove the
+# detectors fire. Nothing here was ever live.
+#
+# Allowlisting by fingerprint rather than by path is deliberate: a real key
+# accidentally committed under tests/ is still reported.
+
+# tests: "AKIATESTONLYZZZZZZZZ" — shared AWS fixture (conftest, cli, history, ignore)
+8003ce18fb3e931bf41d19a9a2db370bfc443490649f59f7ec82f2e460c9a545
+
+# tests/test_structural.py: "AKIAZZZZZZZZZZZZZZZZ" — shape-only structural check
+295cfae3fd0324ea1396144155edf8813b15659a8bdac45ec865ba0e2b78be0a
+
+# tests/test_models.py: "ghp_" + the alphabet — proves masking keeps the prefix
+03aafb028d538b06c4341bf8cf2a692a3c6d1f36e34e0e0b376f407c6117a246
+
+# tests/test_structural.py: JWT ending in deadbeef — header decodes, signature is junk
+35feb125e2771c6b5ff5df8a9433dd60c7278c499c63778f70110c9fbf8df298
+
+# src/secsentry/eval/build_corpus.py: PEM armour around a random filler string,
+# used to synthesise planted positives. RSA then OpenSSH.
+8bcac7908eb950419537b91e19adc83ce2c9cbfdacf4f81157fdadfec11f7017
+03d104c669e3c7b6be7f989db8b12c8b910d3be8c1e2a73c9369d3cc0ba803b5
+
+# notes/Demo vulnerable repo.md, commit 6d0b145: a placeholder localhost
+# database URL, user and password both spelled out as those words, quoted in
+# prose explaining the demo repo. Written out here it would flag this file too.
+969f8c59c7b317a7951d704a82743da6ffbc9b7d0655788e58e4b1a29abacc8c

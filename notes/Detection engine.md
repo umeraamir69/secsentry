@@ -60,9 +60,9 @@ Skip or downrank: hashes, UUIDs, minified JS. See [[False positives]].
 
 ## Masking and fingerprint
 
-Never print the full secret.
+Never print the full secret. Always print the leak location (`path`, `line`, `column`).
 
-- Display: `ghp_••••••••••••91Kd`
+- Display: `config.py:42:18` + `ghp_••••••••••••91Kd`
 - Store: `fingerprint = SHA-256(secret)`
 
 Same fingerprint = same secret across files and commits. [[ADR-004 Mask secrets never print them]]

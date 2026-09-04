@@ -108,13 +108,13 @@ runs:
             body = [
               '## SecSentry secret scan',
               '',
-              count ? `**${count}** finding(s). Values are masked. Rotate anything HIGH/CRITICAL.` : 'No findings at the configured severity.',
+              count ? `**${count}** finding(s). Values are masked; file and line are shown so you can rotate. Anything HIGH/CRITICAL should be treated as leaked.` : 'No findings at the configured severity.',
               '',
               count ? '| Severity | Type | File | Line | Masked |' : '',
               count ? '|---|---|---|---|---|' : '',
               ...rows,
               '',
-              '_This check does not send secrets to OpenAI, AWS, or GitHub APIs.**',
+              '_This check does not send secrets to OpenAI, AWS, or GitHub APIs._',
             ].filter(Boolean).join('\n');
           }
           const { data: comments } = await github.rest.issues.listComments({

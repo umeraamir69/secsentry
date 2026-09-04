@@ -27,7 +27,7 @@ Package and command: `secsentry` (not `gitsentry`). [[ADR-001 Package name]]
 
 ## Terminal UI
 
-Rich. Show repo, files scanned, commits scanned, counts by severity, then findings with type, file, line, commit, confidence, masked secret.
+Rich. Each finding leads with **file:line:column** (where it leaked), then type, commit, still-in-HEAD, masked preview. Never the raw secret. [[ADR-004 Mask secrets never print them]]
 
 Exit code non-zero when HIGH/CRITICAL found (configurable).
 

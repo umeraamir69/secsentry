@@ -15,10 +15,10 @@ Every detector, report, and hook uses this shape. Do not invent a second one.
 | detector / secret_type | `github_token` | Stable ID for allowlists |
 | severity | HIGH | CRITICAL, HIGH, MEDIUM, LOW |
 | confidence | 0.97 | Combined score |
-| file / line / column | config.py:42 | Working tree or blob path |
+| file / line / column | config.py:42:18 | **Always shown** — where it leaked. Masking does not hide location. |
 | commit / author / timestamp | a81f92c, Ada, ada@uni.edu | Empty for working-tree scans |
 | author_email | ada@uni.edu | For People page; do not treat as proven guilt |
-| masked_secret | ghp_••••91Kd | Never the full value |
+| masked_secret | ghp_••••91Kd | Never the full value. Location stays public in the report. |
 | fingerprint | sha256:91c7…a82d | Dedup + allowlist key |
 | first_seen / last_seen | 2026-03-12 | History scans |
 | still_in_head | true / false | Working tree vs history-only |

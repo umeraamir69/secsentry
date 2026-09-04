@@ -29,3 +29,10 @@ notes/.obsidian/cache
 *.pem
 *.key
 credentials.json
+
+# Build artifacts
+dist/
+*.tgz
+
+# Scan cache
+.secsentry/

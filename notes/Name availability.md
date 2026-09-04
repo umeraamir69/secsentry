@@ -7,7 +7,7 @@ tags:
 
 # Name availability
 
-Checked **2026-09-04** (registries live). Lock this identity before writing more code.
+Checked **2026-09-04** (registries live), re-verified the same day after accounts were created: PyPI, TestPyPI, and npm all still return 404 for `secsentry`. Accounts and usernames: [[Accounts and keys]].
 
 ## Dual publish — `secsentry`
 

@@ -1,117 +1,158 @@
 # SecSentry
 
-Python Git **incident** scanner: leaked secrets in the working tree and in **history**, with **blob-level dedup** so identical Git objects are not scanned twice across branches.
+A Git **incident** scanner for leaked secrets. It searches the working tree and the full commit history, deduplicates by blob so the same object is never scanned twice across branches, and reports every finding as a case file: what leaked, where, who introduced it, whether it is still in HEAD, and how to revoke it.
 
-Not a Gitleaks clone. Not live-key verification (we never send a secret to OpenAI, AWS, or GitHub to “see if it works”).
+Values are always masked. SecSentry never sends a credential to a vendor API to check whether it still works.
+
+```bash
+pip install secsentry
+npx secsentry scan .
+
+secsentry scan .              # working tree
+secsentry scan . --history    # every commit
+secsentry serve .  --history  # dashboard on 127.0.0.1
+```
+
+## The problem
+
+You delete an API key from `config.py`, commit, and move on. The key is still in `git log`, still in every clone, and still valid. A scanner that only reads the working tree tells you everything is fine.
 
 ```
-pip install secsentry          # later
-npx secsentry scan .           # later (wrapper)
-secsentry scan . --history     # CLI
+$ secsentry scan ~/code/app
+0 unique secret(s)                       # the tree is clean
+
+$ secsentry scan ~/code/app --history
+8 unique secret(s), 11 occurrence(s)  —  2 critical  4 high  2 medium
+
+[CRITICAL] aws_access_key  AKIA••••••••••••ZZZZ  confidence=0.90
+    .env:2:19  3836986b
+    app/config.py:4:22  3836986b
+    introduced by Umer Aamir on 2026-09-04
+    deleted from HEAD, still in history
+    why: rule=aws_access_key; structural_ok; entropy=2.92
+    fix: IAM → Users → Security credentials → deactivate, then delete this key.
 ```
 
-On GitHub, a pull request shows a **check** named `SecSentry / secrets` (same sidebar slot as Vercel). See [GitHub integration](notes/GitHub%20integration.md).
+Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/testKeys) — secrets committed, then deleted, and still fully recoverable.
 
-Custom domain is **not required**. Use Vercel or GitHub Pages when the website exists.
+## What it does
 
----
-
-## Complete plan
-
-### Problem
-
-Deleting a key from `config.py` does not remove it from `git log`. Teams need a **case file**: what leaked, who first committed it, whether it is still in HEAD, why we think it is a secret, how to rotate — with the value **masked**.
-
-### What we ship (v1)
-
-| Layer | What it does |
+| Layer | Behaviour |
 |---|---|
-| Scanner core | Working tree + git history. Unique **blob OID** scanned once; findings attached to every commit/path that contains that blob |
-| Structural verify | JWT/PEM/prefix/length/entropy checks **locally**. Zero exfiltration |
-| Context classifier | Heuristic + optional sklearn model on a **labeled planted corpus** |
-| Benchmark | Precision/recall vs Gitleaks and TruffleHog on that corpus |
-| Install | `pip` + `npm` same version, one Python engine |
-| GitHub | Action → PR check + masked comment. App later |
+| Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once and its findings attached to every commit and path that contains it. |
+| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack, Groq, HuggingFace, private keys, JWTs, database URLs, generic `*_API_KEY` plus Shannon entropy. |
+| Verification | Prefix, length, and format checks performed **locally**. No network calls, ever. |
+| Classifier | Path and context heuristics, with an optional scikit-learn model trained on a labeled corpus. |
+| Reporting | Terminal, JSON, self-contained HTML, and a localhost dashboard. Masked everywhere. |
+| Enforcement | Pre-commit hook and a GitHub Action that fails the build and comments on the PR. |
 
-### Four weeks
+## Masking hides the value, not the location
 
-1. **CLI + P0 detectors** (OpenAI, Claude, AWS, GitHub, Google, Stripe, Slack, PEM, JWT, generic `*_API_KEY`) + mask + why  
-2. **History + blob dedup + still-in-HEAD + who introduced** + demo repo (commit fakes → delete → still found)  
-3. **Hook + GitHub Action check** + simple report UI (Next.js or JSON)  
-4. **Eval corpus, train classifier, benchmark numbers**, TestPyPI + npm  
+You cannot rotate what you cannot find, so every report shows `path:line:column`, the commit, and the author. What it never shows is a pasteable credential. Duplicates are tracked by SHA-256 fingerprint, and the allowlist accepts fingerprints — never raw secrets.
 
-Never cut: history demo, masking, explainable score, blob dedup.
+## Benchmark
 
-Cut first: extra YAML rules, GitHub App, email, custom domain.
+Measured on a generated corpus of 19 planted credentials and 26 negative lines across three commits. Rebuild it with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
 
-### Honest limits
+| Tool | Precision | Recall | F1 |
+|---|---|---|---|
+| SecSentry 1.0.0 | 1.00 | 1.00 | 1.00 |
+| Gitleaks 8.30.1 | 1.00 | 0.68 | 0.81 |
+| TruffleHog 3.97.4 | 1.00 | 0.37 | 0.54 |
 
-- We will not detect every possible API key. Unknown vendors: keyword + entropy.  
-- We will not claim “221 Gitleaks rules.”  
-- We will not verify keys against vendor APIs.  
-- We will not do SQLi/XSS/CVE scanning.
+**Read that table skeptically.** The corpus was written alongside SecSentry's own detector list, so a perfect score means "it finds what it was built to find," not that it wins on real repositories. Gitleaks ships far more rules than we do and will beat us on vendors we have never heard of. TruffleHog is built around live verification, which a corpus of necessarily-fake keys cannot exercise — its score here measures the wrong thing for its design.
 
-Full positioning: [notes/What makes this real and unique.md](notes/What%20makes%20this%20real%20and%20unique.md)  
-Directory map: [STRUCTURE.md](STRUCTURE.md)  
-Obsidian vault: [notes/00 Home.md](notes/00%20Home.md)
+An earlier version of this corpus used readable filler like `TESTONLY` padded with repeated characters. Those strings fall below Gitleaks' entropy thresholds, so it discarded them and scored 0.32 recall. Switching to high-entropy generated values raised it to 0.68. That 36-point swing came entirely from how the fixtures were written, which is worth remembering whenever you read someone else's benchmark.
 
----
+## What it will not do
 
-## Repo layout (this is the project)
+- Verify keys against vendor APIs. Sending a leaked credential to a third party to test it is the behaviour we are avoiding.
+- Match Gitleaks rule for rule. We cover the common cases well and fall back to entropy for the rest.
+- Scan for SQL injection, XSS, or vulnerable dependencies.
+- Detect secrets in binaries, or anything deliberately obfuscated.
+- Save you from `git commit --no-verify`.
 
-```
-secsentry/
-├── README.md                 ← you are here
-├── STRUCTURE.md              ← folder-by-folder
-├── LICENSE                   MIT
-├── VERSION                   0.1.0 (pip + npm stay in sync)
-├── pyproject.toml            Python package
-├── action.yml                GitHub Action (PR check like Vercel)
-├── SECURITY.md
-│
-├── src/secsentry/            ★ Python engine (only detector implementation)
-│   ├── cli.py
-│   ├── models.py             Finding, mask, fingerprint
-│   ├── git/blobs.py          Unique blob walk (dedup across branches)
-│   ├── scan/                 working tree, staged, history, engine
-│   ├── detectors/            regex + entropy
-│   ├── verify/structural.py  local format checks
-│   ├── classify/             heuristic + ML
-│   ├── reports/
-│   ├── hooks/
-│   └── eval/                 corpus, train, benchmark
-│
-├── packages/npm/             npx wrapper → Python CLI
-├── web/                      Next.js site (later)
-├── tests/
-├── eval/                     generated corpus lives in eval/.data (gitignored)
-├── examples/vulnerable-repo/ history-scan demo
-├── .github/workflows/        CI using ./ action
-└── notes/                    Obsidian project brain
+## Usage
+
+```bash
+secsentry scan .                          # working tree
+secsentry scan . --history                # every commit
+secsentry scan --staged                   # index only
+secsentry scan . --severity high          # filter by severity
+secsentry scan . --type aws --type github # filter by detector
+secsentry scan . --format json -o out.json
+secsentry scan . --format html -o report.html
+secsentry serve . --history               # dashboard, loopback only
+
+secsentry install-hook                    # block commits that stage secrets
+secsentry uninstall-hook
 ```
 
----
+Exit code is `1` when a finding reaches `--fail-on` (default `high`), otherwise `0`.
 
-## Commands (target)
+### Configuration
+
+| File | Purpose |
+|---|---|
+| `.gitignore` | Honoured automatically inside a git repo |
+| `.secsentryignore` | Scanner-only path patterns |
+| `.secsentryallow` | Accepted findings, one SHA-256 fingerprint per line |
+| `.secsentry/last-scan.json` | Cached scan, written after each run |
+
+### GitHub Action
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0        # required, or there is no history to scan
+- uses: umeraamir69/secsentry@v1.0.0
+  with:
+    history: true
+    fail-on: high
+```
+
+The check appears in the pull request sidebar as `SecSentry / secrets` and comments a masked summary.
+
+## Development
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
-secsentry scan .
-secsentry scan . --history
-secsentry scan --staged
-secsentry install-hook
-
+pytest tests -q
+python scripts/check_version_sync.py
 python -m secsentry.eval.build_corpus
-python -m secsentry.eval.train
 python -m secsentry.eval.benchmark
 ```
 
-GitHub: other repos `uses: <you>/secsentry@v0.1.0` with `fetch-depth: 0`.
+`VERSION`, `pyproject.toml`, `packages/npm/package.json`, and `__init__.py` must always agree; CI enforces it.
 
----
+## Layout
+
+```
+src/secsentry/
+├── cli.py            argparse entry point
+├── models.py         Finding, mask_secret, fingerprint
+├── rotation.py       how to revoke each credential type
+├── git/              subprocess helpers, unique blob walk
+├── scan/             engine, working tree, staged, history, aggregate, ignore
+├── detectors/        regex rules and Shannon entropy
+├── verify/           local structural checks, no network
+├── classify/         heuristics, features, optional ML
+├── reports/          terminal, JSON, HTML, dashboard server
+├── hooks/            pre-commit
+└── eval/             corpus builder, training, benchmark
+
+packages/npm/         wrapper that spawns the Python CLI
+notes/                Obsidian vault: plan, ADRs, runbooks
+```
+
+There is one detector implementation. The npm package, the GitHub Action, and any future web UI all shell out to the Python engine rather than reimplementing it.
+
+## Architecture decisions
+
+The reasoning behind the non-obvious choices lives in [`notes/decisions/`](notes/decisions/): git via subprocess rather than a library, history via blob dedup, masking rules, localhost-only dashboard, one engine across two registries, and no live verification.
 
 ## License
 
-MIT. Planted eval secrets are **fake** (structurally valid, not live). Never commit real keys.
+MIT. Every credential in the tests, the demo repo, and the eval corpus is fake.

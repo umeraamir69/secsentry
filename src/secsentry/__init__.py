@@ -1,3 +1,5 @@
-"""SecSentry — local Git secrets scanner. Never sends secrets to vendors."""
+"""SecSentry — Git incident scanner for leaked secrets."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
+
+__all__ = ["__version__"]

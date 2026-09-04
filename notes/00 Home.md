@@ -11,6 +11,7 @@ Local Git secrets leak scanner. Python engine, **pip + npm** in the same release
 
 ## Start here
 
+- [[Tasks]] — **the checklist. Every task, phase 0 → v1.0.0**
 - [[What makes this real and unique]] — why this is not a Gitleaks clone
 - [[Complete plan]] — four weeks, what to cut
 - [[Product vision]]
@@ -20,6 +21,7 @@ Local Git secrets leak scanner. Python engine, **pip + npm** in the same release
 ## Map
 
 ### Product
+- [[Tasks]]
 - [[Complete plan]]
 - [[What makes this real and unique]]
 - [[Product vision]]
@@ -57,12 +59,13 @@ Local Git secrets leak scanner. Python engine, **pip + npm** in the same release
 - [[Competitor landscape]]
 
 ### Ops
+- [[Accounts and keys]]
 - [[Runbooks]]
 - [[Inbox]]
 
 ## Current status
 
-Plan: unique investigation scanner, not a rule-count race. Domain deferred. Next: scaffold `src/secsentry`.
+Week 1 CLI works and the **history demo is proven**: [[Demo vulnerable repo]] (`umeraamir69/testKeys`) — clean tree scans to 0 findings, `--history` recovers all 11. Next: push that repo, record the GIF, then first-seen/last-seen. **Do not start with PyPI/npm publish** — accounts now, publish Week 4. [[Tasks]] [[Accounts and keys]]
 
 ## How we use this vault
 
