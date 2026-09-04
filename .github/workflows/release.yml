@@ -55,19 +55,28 @@ jobs:
             echo "::notice::secsentry@${VER} is already on npm. Skipping."
             exit 0
           fi
-          if ! npm view secsentry version >/dev/null 2>&1; then
-            echo "::notice::secsentry is not on npm yet. First publish must be local:"
-            echo "  cd packages/npm && npm login && npm publish --access public"
-            echo "Then attach a Trusted Publisher (workflow release.yml, environment npm)."
-            echo "Skipping so this job does not fail."
-            exit 0
-          fi
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
+          # An empty NODE_AUTH_TOKEN still blocks OIDC trusted publishing.
+          if [ -n "${NODE_AUTH_TOKEN}" ]; then
             echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
           else
+            unset NODE_AUTH_TOKEN
             rm -f ~/.npmrc "$RUNNER_TEMP/.npmrc" || true
           fi
-          npm publish --access public
+          set +e
+          OUT="$(npm publish --access public 2>&1)"
+          CODE=$?
+          set -e
+          echo "$OUT"
+          if [ "$CODE" -eq 0 ]; then
+            exit 0
+          fi
+          if echo "$OUT" | grep -q ENEEDAUTH; then
+            echo "::notice::npm CI is not authorized. Publish locally, then attach a Trusted Publisher"
+            echo "  (package secsentry, workflow release.yml, environment npm):"
+            echo "  cd packages/npm && npm publish --access public"
+            exit 0
+          fi
+          exit "$CODE"
 
   goreleaser:
     needs: verify
