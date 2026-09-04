@@ -12,6 +12,8 @@ secsentry scan . --history    # every commit
 secsentry serve .  --history  # dashboard on 127.0.0.1
 ```
 
+`pip install secsentry` and `npx secsentry` are wrappers. They still need that Go binary on `PATH`.
+
 ## The problem
 
 You delete an API key from `config.py`, commit, and move on. The key is still in `git log`, still in every clone, and still valid. A scanner that only reads the working tree tells you everything is fine.

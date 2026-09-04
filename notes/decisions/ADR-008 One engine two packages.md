@@ -15,9 +15,9 @@ v1 shipped a Python engine and an npm wrapper that spawned it. Converting the pr
 
 - The **Go module** (`github.com/umeraamir69/secsentry`) is the engine and the CLI
 - Install path is `go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`
-- npm package `secsentry` is a **bin wrapper** that invokes that CLI
+- npm package `secsentry` and PyPI package `secsentry` are **PATH wrappers** that invoke that CLI
 - The GitHub Action builds the Go binary with `setup-go`
-- Same version number in `VERSION`, `internal/version/version.go`, and `packages/npm/package.json`
+- Same version number in `VERSION`, `internal/version/version.go`, `packages/npm/package.json`, and `pyproject.toml`
 
 ## Consequences
 

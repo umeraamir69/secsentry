@@ -1,0 +1,13 @@
+include LICENSE
+include pyproject.toml
+include packages/pypi/README.md
+recursive-include packages/pypi/secsentry *.py
+prune tests
+prune src
+prune eval
+prune notes
+prune web
+prune cmd
+prune internal
+prune examples
+prune packages/npm

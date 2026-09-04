@@ -17,11 +17,14 @@ def main() -> int:
     go = (ROOT / "internal" / "version" / "version.go").read_text(encoding="utf-8")
     go_match = re.search(r'const Version = "([^"]+)"', go)
     package = json.loads((ROOT / "packages" / "npm" / "package.json").read_text(encoding="utf-8"))
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    py_match = re.search(r'^version = "([^"]+)"', pyproject, re.M)
 
     found = {
         "VERSION": version,
         "internal/version/version.go": go_match.group(1) if go_match else "missing",
         "packages/npm/package.json": package["version"],
+        "pyproject.toml": py_match.group(1) if py_match else "missing",
     }
 
     if len(set(found.values())) == 1:

@@ -6,6 +6,8 @@ All notable changes to SecSentry. The engine is the Go binary; the npm package i
 
 Rename a notes file so `go install` can build the module zip. Go rejects an em dash in a file path.
 
+pip `secsentry` is a PATH wrapper around the Go binary (same idea as npm). The old Python detector tree is not published.
+
 ## [1.3.0] — 2026-09-04
 
 Pack 1 structured detectors. Precision-first: no generic passwords, no unlabeled high-entropy, no live verify.

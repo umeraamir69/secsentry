@@ -1,9 +1,9 @@
-# Publishes the npm wrapper from a version tag. The engine is the Go binary
-# (`go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`).
+# Publishes the npm and PyPI wrappers from a version tag. The engine is the
+# Go binary (`go install github.com/umeraamir69/secsentry/cmd/secsentry@latest`).
 #
-# npm cannot create a package via OIDC (npm/cli#8544). Publish 1.0.0 once by
-# hand, attach a Trusted Publisher to the package, then delete NPM_TOKEN and
-# every later release runs tokenless.
+# npm cannot create a package via OIDC (npm/cli#8544). First npm publish is
+# local; later tags use a Trusted Publisher (or NPM_TOKEN).
+# PyPI pending Trusted Publisher can create the project on first upload.
 name: Release
 
 on:
@@ -50,9 +50,49 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          VER="$(node -p "require('./package.json').version")"
+          if npm view "secsentry@${VER}" version >/dev/null 2>&1; then
+            echo "::notice::secsentry@${VER} is already on npm. Skipping."
+            exit 0
+          fi
+          if ! npm view secsentry version >/dev/null 2>&1; then
+            echo "::notice::secsentry is not on npm yet. First publish must be local:"
+            echo "  cd packages/npm && npm login && npm publish --access public"
+            echo "Then attach a Trusted Publisher (workflow release.yml, environment npm)."
+            echo "Skipping so this job does not fail."
+            exit 0
+          fi
           if [ -n "$NODE_AUTH_TOKEN" ]; then
             echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
           else
             rm -f ~/.npmrc "$RUNNER_TEMP/.npmrc" || true
           fi
           npm publish --access public
+
+  pypi:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Skip if this version is already on PyPI
+        id: pypi_exists
+        run: |
+          VER="$(cat VERSION)"
+          if curl -sf "https://pypi.org/pypi/secsentry/${VER}/json" >/dev/null; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::secsentry ${VER} is already on PyPI. Skipping."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish
+        if: steps.pypi_exists.outputs.skip != 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
