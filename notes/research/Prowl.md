@@ -49,9 +49,9 @@ We ran the published harness. Gitleaks/TruffleHog matched their published F1 exa
 | **SecSentry 1.2.0** | **0.951** | 0.347 | 0.509 |
 | TruffleHog | 0.940 | 0.303 | 0.458 |
 
-1.3.0 added pack 1 structured prefixes. The row above is still 1.2.0 until the harness is re-run.
+**Cite 1.2.0 only** (commit `8c96549`). 1.3.x / 1.4.0 are not this row.
 
-T1 structured recall 0.64 (Gitleaks 0.65). T2 generic-context 0.01 (Gitleaks 0.35). T4 FP rate 0.037 (lowest of the three we ran). Full write-up: [[Benchmark results]]. Artifact: `eval/results/prowlbench_leaderboard.json`.
+T1 structured recall 0.64 (Gitleaks 0.65). T2 generic-context 0.01 (Gitleaks 0.35): 1.2.0 had no `generic_password` rule, no unlabeled high-entropy rule, and quoted-only `generic_api_key` — those snippets never reached the classifier. Classify can still drop a *quoted* generic on `.md` / english-like paths; that is secondary. T4 FP rate 0.037 (lowest of the three we ran). Full write-up: [[Benchmark results]]. Artifact: `eval/results/prowlbench_leaderboard.json`.
 
 ## License
 

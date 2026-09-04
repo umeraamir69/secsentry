@@ -56,6 +56,8 @@ The first version used readable filler — `ghp_TESTONLY` plus repeated characte
 
 Ran 2026-09-04 with the published [Lercas/prowlbench](https://github.com/Lercas/prowlbench) protocol on `Podric/prowl-secrets-corpus` (`prowlbench.parquet`). Snippet-level flag ≥ 1. Artifact: `eval/results/prowlbench_leaderboard.json`. Charts: the ProwlBench results canvas.
 
+**Cite as SecSentry 1.2.0.** Source commit `8c965495c0da2488254b4476149f44ffde40f9c5` (`Port the scanner to Go and ship 1.2.0.`). There is no `v1.2.0` tag. 1.3.0 / 1.3.1 / 1.4.0 changed detectors; **do not put those version numbers on this table.** Re-run the harness and replace the artifact before claiming a new row.
+
 **Gitleaks and TruffleHog match the published leaderboard exactly** (F1 0.573 and 0.458). The harness is fair. Prowl cascade is quoted from their README, not re-run.
 
 | Tool | Precision | Recall | F1 | Accuracy |
@@ -65,7 +67,7 @@ Ran 2026-09-04 with the published [Lercas/prowlbench](https://github.com/Lercas/
 | **SecSentry 1.2.0** | **0.951** | 0.347 | 0.509 | 0.549 |
 | TruffleHog | 0.940 | 0.303 | 0.458 | 0.518 |
 
-1.3.0 added Slack webhooks, Discord, Telegram, Azure storage, Datadog, DigitalOcean, Basic auth, and looser PEM/GCP/AWS-secret pairing. **This table is still the 1.2.0 run.** Re-score before replacing the row.
+1.3.0 added Slack webhooks, Discord, Telegram, Azure storage, Datadog, DigitalOcean, Basic auth, and looser PEM/GCP/AWS-secret pairing. 1.4.0 added unquoted `API_KEY=` and labeled `PASSWORD=`. **None of that is in the table above.** Re-score before replacing the row.
 
 Counts for this run: SecSentry TP 5748 / FP 298 / FN 10804 / TN 7753.
 
@@ -77,7 +79,11 @@ Counts for this run: SecSentry TP 5748 / FP 298 / FN 10804 / TN 7753.
 | Gitleaks | 0.65 | 0.35 | 0.17 | 0.063 |
 | TruffleHog | 0.60 | 0.00 | 0.13 | 0.040 |
 
-T1 is a dead heat with Gitleaks. T2 is the hole: we almost never fire on unlabeled generic keys/passwords; Gitleaks does. T4 we are the quietest of the three we ran.
+T1 is a dead heat with Gitleaks. T2 is the hole: 0.01 vs Gitleaks 0.35. T4 we are the quietest of the three we ran.
+
+**Why T2 is 0.01 (discussion, 1.2.0 binary):** it is **missing coverage**, not an entropy classifier eating true positives. That binary had (1) no `generic_password` detector at all, (2) no unlabeled high-entropy detector, (3) `generic_api_key` only on *quoted* `api_key="…"` / `secret_key="…"` / `access_token="…"`. Unquoted assignments, `PASSWORD=`, and free-floating entropy never produced a hit, so classify never saw them. Top miss labels (generic_password 3284, generic_api_key 3143, generic_high_entropy 1101) match that gap.
+
+The classifier *can* still suppress a quoted `generic_api_key` that did fire: `english_like` BPE rarity, lockfiles, and `docs_or_tests` (the harness names Jira/Confluence snippets `*.md`). That is a real active false-negative path, but it only applies after the quoted rule matches. It does not explain a T2 recall of 0.01; Gitleaks' 0.35 comes from rules we did not have.
 
 ### How to read this
 

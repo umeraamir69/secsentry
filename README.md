@@ -71,6 +71,8 @@ Working tree is clean. History is not.
 
 Same protocol as [Lercas/prowlbench](https://github.com/Lercas/prowlbench). Gitleaks and TruffleHog match the published leaderboard, so the row is comparable. Prowl cascade is quoted, not re-run.
 
+**Cite this table as SecSentry 1.2.0 only** (source commit `8c96549`; artifact `eval/results/prowlbench_leaderboard.json`, 2026-09-04). There is no `v1.2.0` git tag. Later versions (1.3.0, 1.3.1, 1.4.0) changed detectors; they are a different binary and must not be reported against these figures until the harness is re-run.
+
 | Tool | Precision | Recall | F1 |
 |---|---|---|---|
 | Prowl cascade (published) | 0.951 | 0.823 | 0.883 |
@@ -78,7 +80,7 @@ Same protocol as [Lercas/prowlbench](https://github.com/Lercas/prowlbench). Gitl
 | **SecSentry 1.2.0** | **0.951** | 0.347 | 0.509 |
 | TruffleHog | 0.940 | 0.303 | 0.458 |
 
-Highest precision of the three we ran. Recall is lower because the set is heavy on `generic_password` / prose keys we do not target. Structured-token recall (T1) is 0.64 vs Gitleaks 0.65; the gap is T2 generic-context (0.01 vs 0.35). Artifact: `eval/results/prowlbench_leaderboard.json`. 1.3.0 added more structured prefixes; that row is not in this table until the harness is re-run.
+Highest precision of the three we ran. T1 structured-token recall is 0.64 vs Gitleaks 0.65. Overall recall is 0.347 vs 0.413 because T2 generic-context is 0.01 vs 0.35. That T2 gap is **missing coverage, not the classifier quietly discarding hits**: 1.2.0 had no `generic_password` rule, no unlabeled high-entropy rule, and `generic_api_key` only matched *quoted* `api_key="…"` assignments, so those snippets never reached classify. Where a quoted generic *did* match, classify can still drop it (`docs_or_tests` on `.md` paths the harness uses for Jira/Confluence, or `english_like` rarity) — a second, smaller filter, not the reason T2 is essentially empty.
 
 ### Planted corpus (25 designed-to-match secrets)
 
