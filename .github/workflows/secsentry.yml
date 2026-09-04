@@ -1,0 +1,30 @@
+# Appears on pull requests as a check (same sidebar slot as Vercel).
+# See notes/GitHub integration.md
+name: SecSentry
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  secrets:
+    name: SecSentry / secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run SecSentry
+        uses: ./
+        with:
+          history: true
+          fail-on: high
+          comment: true

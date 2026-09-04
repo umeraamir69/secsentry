@@ -1,0 +1,31 @@
+# Generated eval corpus (rebuild with python -m secsentry.eval.build_corpus)
+eval/.data/
+eval/results/*.json
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# Models
+src/secsentry/classify/model.joblib
+
+# Obsidian workspace
+notes/.obsidian/workspace.json
+notes/.obsidian/workspace-mobile.json
+notes/.obsidian/cache
+
+.DS_Store
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json

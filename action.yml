@@ -1,0 +1,141 @@
+name: SecSentry
+description: Scan this repo for leaked secrets (working tree + git history). Posts a PR check like other GitHub Apps.
+author: SecSentry
+branding:
+  icon: shield
+  color: gray-dark
+
+inputs:
+  path:
+    description: Repository path to scan
+    required: false
+    default: "."
+  history:
+    description: Scan full git history (needs fetch-depth 0)
+    required: false
+    default: "true"
+  fail-on:
+    description: Fail the check at this severity (low, medium, high, critical)
+    required: false
+    default: "high"
+  comment:
+    description: Comment a masked summary on pull requests
+    required: false
+    default: "true"
+
+outputs:
+  findings-count:
+    description: Number of findings at or above fail-on
+    value: ${{ steps.scan.outputs.findings-count }}
+  report-path:
+    description: JSON report path
+    value: ${{ steps.scan.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install SecSentry
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install "${{ github.action_path }}"
+
+    - name: Scan
+      id: scan
+      shell: bash
+      env:
+        FAIL_ON: ${{ inputs.fail-on }}
+        HISTORY: ${{ inputs.history }}
+        SCAN_PATH: ${{ inputs.path }}
+      run: |
+        set -euo pipefail
+        ARGS=(scan "$SCAN_PATH" --format json --fail-on "$FAIL_ON")
+        if [ "$HISTORY" = "true" ]; then
+          ARGS+=(--history)
+        fi
+        mkdir -p .secsentry
+        REPORT=".secsentry/github-action.json"
+        set +e
+        secsentry "${ARGS[@]}" --output "$REPORT"
+        STATUS=$?
+        set -e
+        COUNT=0
+        if [ -f "$REPORT" ]; then
+          COUNT=$(python -c "import json,sys; d=json.load(open(sys.argv[1])); print(len(d.get('findings',[])))" "$REPORT")
+        fi
+        echo "findings-count=$COUNT" >> "$GITHUB_OUTPUT"
+        echo "report-path=$REPORT" >> "$GITHUB_OUTPUT"
+        echo "## SecSentry" >> "$GITHUB_STEP_SUMMARY"
+        echo "Findings: **$COUNT** (fail-on: \`$FAIL_ON\`, history: \`$HISTORY\`)" >> "$GITHUB_STEP_SUMMARY"
+        echo >> "$GITHUB_STEP_SUMMARY"
+        echo "Secrets are masked. This check never sends keys to vendor APIs." >> "$GITHUB_STEP_SUMMARY"
+        if [ "$COUNT" -gt 0 ] && [ -f "$REPORT" ]; then
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+        import json, pathlib
+        p = pathlib.Path(".secsentry/github-action.json")
+        data = json.loads(p.read_text())
+        print("")
+        print("| Severity | Type | File | Line | Why |")
+        print("|---|---|---|---|---|")
+        for f in data.get("findings", [])[:40]:
+            why = "; ".join(f.get("why") or [])[:80]
+            print(f"| {f.get('severity','')} | {f.get('secret_type','')} | `{f.get('path','')}` | {f.get('line','')} | {why} |")
+        PY
+        fi
+        exit "$STATUS"
+
+    - name: Comment on pull request
+      if: ${{ github.event_name == 'pull_request' && inputs.comment == 'true' }}
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = '.secsentry/github-action.json';
+          let count = 0;
+          let body = '## SecSentry\n\nNo JSON report produced.';
+          if (fs.existsSync(path)) {
+            const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const findings = data.findings || [];
+            count = findings.length;
+            const rows = findings.slice(0, 20).map(f =>
+              `| ${f.severity || ''} | ${f.secret_type || ''} | \`${f.path || ''}\` | ${f.line || ''} | \`${f.masked || ''}\` |`
+            );
+            body = [
+              '## SecSentry secret scan',
+              '',
+              count ? `**${count}** finding(s). Values are masked. Rotate anything HIGH/CRITICAL.` : 'No findings at the configured severity.',
+              '',
+              count ? '| Severity | Type | File | Line | Masked |' : '',
+              count ? '|---|---|---|---|---|' : '',
+              ...rows,
+              '',
+              '_This check does not send secrets to OpenAI, AWS, or GitHub APIs.**',
+            ].filter(Boolean).join('\n');
+          }
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const marker = '## SecSentry secret scan';
+          const existing = comments.find(c => c.user.type === 'Bot' && c.body.includes(marker));
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+          }

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "secsentry"
+version = "0.1.0"
+description = "Git secrets scanner: blob-deduped history, structural verification, no vendor exfiltration"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "SecSentry" }]
+keywords = ["security", "secrets", "git", "scanner"]
+dependencies = []
+
+[project.optional-dependencies]
+ml = ["scikit-learn>=1.4", "joblib>=1.3", "numpy>=1.26"]
+dev = ["pytest>=8.0", "secsentry[ml]"]
+
+[project.scripts]
+secsentry = "secsentry.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+secsentry = ["classify/model.joblib"]
