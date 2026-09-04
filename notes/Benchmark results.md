@@ -6,13 +6,15 @@ tags:
 
 # Benchmark results
 
-Run 2026-09-04 on the planted corpus: 19 secrets, 26 negative lines, 3 commits. Rebuild with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
+Run 2026-09-04 on the planted corpus: 25 secrets, 26 negative lines, 3 commits. Rebuild with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
 
 | Tool | Version | Precision | Recall | F1 | TP | FP | FN |
 |---|---|---|---|---|---|---|---|
-| **SecSentry** | 1.0.0 | 1.00 | 1.00 | 1.00 | 19 | 0 | 0 |
-| Gitleaks | 8.30.1 | 1.00 | 0.68 | 0.81 | 13 | 0 | 6 |
-| TruffleHog | 3.97.4 | 1.00 | 0.37 | 0.54 | 7 | 0 | 12 |
+| **SecSentry** | 1.0.0 | 1.00 | 1.00 | 1.00 | 25 | 0 | 0 |
+| Gitleaks | 8.30.1 | 1.00 | 0.76 | 0.86 | 19 | 0 | 6 |
+| TruffleHog | 3.97.4 | 1.00 | 0.40 | 0.57 | 10 | 0 | 15 |
+
+Corpus grew from 19 to 25 planted secrets in v1.0 when Square, Shopify, SendGrid, Twilio, GitLab, npm, and PyPI detectors were added from public token signatures ([[GitHub search dorks]]).
 
 ## The corpus bias we found and fixed
 

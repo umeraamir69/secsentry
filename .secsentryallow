@@ -33,3 +33,8 @@
 # database URL, user and password both spelled out as those words, quoted in
 # prose explaining the demo repo. Written out here it would flag this file too.
 969f8c59c7b317a7951d704a82743da6ffbc9b7d0655788e58e4b1a29abacc8c
+
+# src/secsentry/eval/build_corpus.py: the fixed Slack token prefix template
+# ("xoxb-9876543210-1234567890-") the corpus builder concatenates a random
+# body onto. The literal prefix in the source trips the widened slack rule.
+ed8b9d51a3a6b1b5195bdddea228b82dcee0bf7fc8892809045fdd0940e471ce

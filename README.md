@@ -40,7 +40,7 @@ Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/test
 | Layer | Behaviour |
 |---|---|
 | Scanner | Working tree, staged diff, or full history. Each unique blob OID is read once and its findings attached to every commit and path that contains it. |
-| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack, Groq, HuggingFace, private keys, JWTs, database URLs, generic `*_API_KEY` plus Shannon entropy. |
+| Detectors | AWS, GitHub, OpenAI, Anthropic, Google, Stripe, Slack, Groq, HuggingFace, Square, Shopify, SendGrid, Twilio, GitLab, npm, PyPI, private keys, JWTs, database URLs, generic `*_API_KEY` plus Shannon entropy. |
 | Verification | Prefix, length, and format checks performed **locally**. No network calls, ever. |
 | Classifier | Path and context heuristics, with an optional scikit-learn model trained on a labeled corpus. |
 | Reporting | Terminal, JSON, self-contained HTML, and a localhost dashboard. Masked everywhere. |
@@ -52,13 +52,13 @@ You cannot rotate what you cannot find, so every report shows `path:line:column`
 
 ## Benchmark
 
-Measured on a generated corpus of 19 planted credentials and 26 negative lines across three commits. Rebuild it with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
+Measured on a generated corpus of 25 planted credentials and 26 negative lines across three commits. Rebuild it with `python -m secsentry.eval.build_corpus && python -m secsentry.eval.benchmark`.
 
 | Tool | Precision | Recall | F1 |
 |---|---|---|---|
 | SecSentry 1.0.0 | 1.00 | 1.00 | 1.00 |
-| Gitleaks 8.30.1 | 1.00 | 0.68 | 0.81 |
-| TruffleHog 3.97.4 | 1.00 | 0.37 | 0.54 |
+| Gitleaks 8.30.1 | 1.00 | 0.76 | 0.86 |
+| TruffleHog 3.97.4 | 1.00 | 0.40 | 0.57 |
 
 **Read that table skeptically.** The corpus was written alongside SecSentry's own detector list, so a perfect score means "it finds what it was built to find," not that it wins on real repositories. Gitleaks ships far more rules than we do and will beat us on vendors we have never heard of. TruffleHog is built around live verification, which a corpus of necessarily-fake keys cannot exercise — its score here measures the wrong thing for its design.
 

@@ -8,6 +8,7 @@ First public release. `pip install secsentry` and `npx secsentry`.
 
 ### Added
 
+- Detectors for Square, Shopify, SendGrid, Twilio, GitLab, npm, and PyPI tokens, derived from public token signatures. Slack widened to `xox[baprs]-`.
 - `secsentry serve` — localhost dashboard with Overview, Secrets, People, Timeline, and Files. Binds `127.0.0.1` only.
 - Unique-secret aggregation: one fingerprint, many occurrences, instead of repeating identical lines.
 - First seen, last seen, secret age, and "introduced by" from the earliest commit containing each secret.

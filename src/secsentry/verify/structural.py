@@ -42,4 +42,12 @@ def structural_ok(secret_type: str, secret: str) -> bool:
         return secret.startswith("AIza") and len(secret) == 39
     if secret_type == "stripe_live":
         return secret.startswith("sk_live_") and len(secret) >= 32
+    if secret_type == "shopify_token":
+        return bool(re.fullmatch(r"shp(?:ss|at|ca|pa)_[0-9a-fA-F]{32}", secret))
+    if secret_type == "sendgrid_key":
+        return secret.startswith("SG.") and secret.count(".") == 2
+    if secret_type == "twilio_key":
+        return bool(re.fullmatch(r"SK[0-9a-fA-F]{32}", secret))
+    if secret_type == "npm_token":
+        return secret.startswith("npm_") and len(secret) == 40
     return True
