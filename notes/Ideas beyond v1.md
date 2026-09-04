@@ -8,7 +8,7 @@ tags:
 
 Things that can be added **after** the 4-week core. Split: still a secrets scanner vs Master’s-portfolio extras vs do not add.
 
-Core 4 weeks stay in [[Roadmap]]. Platform requests (GitHub/Bitbucket/PRs/email) stay in [[Feature evaluation — platform and SAST]].
+Core 4 weeks stay in [[Roadmap]]. Platform requests (GitHub/Bitbucket/PRs/email) stay in [[Feature evaluation - platform and SAST]].
 
 ## High value for a Master’s showcase
 

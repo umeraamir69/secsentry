@@ -8,7 +8,7 @@ tags:
 
 SecSentry is a **secrets leak scanner for Git**. It is not a full SAST platform and not a Ruby gem CVE scanner.
 
-Those extra features (SQL injection, XSS, vulnerable gems, team SaaS) came from the old [gitsentry.com](https://gitsentry.com/) product — a 2014 Ruby static-analysis SaaS that is no longer active. They are a different product. Full evaluation: [[Feature evaluation — platform and SAST]].
+Those extra features (SQL injection, XSS, vulnerable gems, team SaaS) came from the old [gitsentry.com](https://gitsentry.com/) product — a 2014 Ruby static-analysis SaaS that is no longer active. They are a different product. Full evaluation: [[Feature evaluation - platform and SAST]].
 
 ## In scope for v1
 
@@ -59,5 +59,5 @@ Decision: [[ADR-005 Defer SAST and SCA]]
 ## Related
 
 - [[Product vision]]
-- [[Feature evaluation — platform and SAST]]
+- [[Feature evaluation - platform and SAST]]
 - [[Roadmap]]

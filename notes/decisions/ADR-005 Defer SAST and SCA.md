@@ -17,7 +17,7 @@ Requested extras from the old GitSentry.com pricing page: SQL injection detectio
 - **Accept later** (after secrets v1): GitHub, Bitbucket, pull request comments, email-from-CI, internally hosted git, automatic CI scans.
 - **Reject as code**: premium support SKU, hosted multi-tenant dashboard for v1.
 
-Full write-up: [[Feature evaluation — platform and SAST]]
+Full write-up: [[Feature evaluation - platform and SAST]]
 
 ## Consequences
 

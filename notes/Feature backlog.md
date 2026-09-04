@@ -50,6 +50,6 @@ Ordered. Do not start later items before MVP detection + history work.
 
 ## Related
 
-- [[Feature evaluation — platform and SAST]]
+- [[Feature evaluation - platform and SAST]]
 - [[Roadmap]]
 - [[Product scope]]

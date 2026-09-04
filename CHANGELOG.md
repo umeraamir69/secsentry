@@ -2,6 +2,10 @@
 
 All notable changes to SecSentry. The engine is the Go binary; the npm package is a wrapper around it.
 
+## [1.3.1] — 2026-09-04
+
+Rename a notes file so `go install` can build the module zip. Go rejects an em dash in a file path.
+
 ## [1.3.0] — 2026-09-04
 
 Pack 1 structured detectors. Precision-first: no generic passwords, no unlabeled high-entropy, no live verify.

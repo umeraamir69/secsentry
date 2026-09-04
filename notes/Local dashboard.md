@@ -114,7 +114,7 @@ If week 3 is too tight: ship `/` + `/secrets` + `/people` first. `/commits` and 
 - Not SQLi/XSS dashboards
 - Not bound to LAN/public IP in v1
 
-Those stay in [[Feature evaluation — platform and SAST]] / after v1.
+Those stay in [[Feature evaluation - platform and SAST]] / after v1.
 
 ## LinkedIn
 
