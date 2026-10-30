@@ -1,0 +1,14 @@
+---
+description: Load prior Cursor chats and product memory for this repo
+alwaysApply: true
+---
+
+# Prior chats
+
+This workspace’s Cursor agent transcripts are backed up in `notes/chats/`.
+
+- Start with `notes/chats/CONTEXT.md` (product, versions, standing rules, known npm `npx` recursion bug).
+- Raw logs: `notes/chats/agent-transcripts/*.jsonl` and `notes/chats/INDEX.md`.
+- Cite a past chat as `[title](uuid)` using the folder name without `.jsonl`.
+
+Do not treat ProwlBench numbers as 1.4.0. Do not commit `prowlbench_cases.jsonl` or leftover Python engine files under `src/secsentry/scan/`.
