@@ -35,7 +35,7 @@ $ secsentry scan ~/code/app --history
     fix: IAM → Users → Security credentials → deactivate, then delete this key.
 ```
 
-Live demo repository: [umeraamir69/testKeys](https://github.com/umeraamir69/testKeys) — secrets committed, then deleted, and still fully recoverable.
+Fixture walkthrough: commit a throwaway key, delete it, then run `secsentry scan . --history`. The finding stays in history after the working tree is clean.
 
 ## What it does
 
